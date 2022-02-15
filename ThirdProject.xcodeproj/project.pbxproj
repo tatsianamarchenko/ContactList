@@ -16,6 +16,8 @@
 		BF6A245E27BB08B4002A4FC8 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A245D27BB08B4002A4FC8 /* TabBar.swift */; };
 		BF6A246527BB0D66002A4FC8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = BF6A246727BB0D66002A4FC8 /* Localizable.strings */; };
 		BF6A246A27BB0F53002A4FC8 /* FavoriteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */; };
+		BFE39ECC27BBC1B00062BC37 /* ContactCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */; };
+		BFE39ECE27BBF57B0062BC37 /* InfoAboutContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +33,8 @@
 		BF6A246627BB0D66002A4FC8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BF6A246827BB0D67002A4FC8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteViewController.swift; sourceTree = "<group>"; };
+		BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactCell.swift; sourceTree = "<group>"; };
+		BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoAboutContactViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,9 +70,11 @@
 				BF6A244527BB03A8002A4FC8 /* AppDelegate.swift */,
 				BF6A244727BB03A8002A4FC8 /* SceneDelegate.swift */,
 				BF6A244927BB03A8002A4FC8 /* CantactsViewController.swift */,
+				BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */,
+				BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */,
 				BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */,
-				BF6A246727BB0D66002A4FC8 /* Localizable.strings */,
 				BF6A245D27BB08B4002A4FC8 /* TabBar.swift */,
+				BF6A246727BB0D66002A4FC8 /* Localizable.strings */,
 				BF6A245A27BB070F002A4FC8 /* Main.storyboard */,
 				BF6A244E27BB03AA002A4FC8 /* Assets.xcassets */,
 				BF6A245027BB03AA002A4FC8 /* LaunchScreen.storyboard */,
@@ -171,6 +177,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BFE39ECE27BBF57B0062BC37 /* InfoAboutContactViewController.swift in Sources */,
+				BFE39ECC27BBC1B00062BC37 /* ContactCell.swift in Sources */,
 				BF6A244A27BB03A8002A4FC8 /* CantactsViewController.swift in Sources */,
 				BF6A244627BB03A8002A4FC8 /* AppDelegate.swift in Sources */,
 				BF6A244827BB03A8002A4FC8 /* SceneDelegate.swift in Sources */,
