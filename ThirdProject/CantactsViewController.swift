@@ -12,6 +12,7 @@ class CantactsViewController: UIViewController {
 
   var contactStore = CNContactStore()
   var contacts = [CNContact]()
+  var array = [Contact]()
   var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
 
   private lazy var accessButton: UIButton = {
@@ -45,7 +46,7 @@ class CantactsViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-
+  
     view.backgroundColor = .systemBackground
     view.addSubview(accessButton)
     view.addSubview(table)
@@ -90,7 +91,13 @@ class CantactsViewController: UIViewController {
 
   func loadContacts() {
     do {
-      contacts = [CNContact]()
+     contacts = [CNContact]()
+
+      let path = URL(fileURLWithPath: NSTemporaryDirectory())
+      print(path)
+      let disk = DiskStorage(path: path)
+      let storage = CodableStorage(storage: disk)
+
       let keysTofetch = [
         CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
         CNContactImageDataKey as CNKeyDescriptor,
@@ -98,9 +105,23 @@ class CantactsViewController: UIViewController {
         CNContactPhoneNumbersKey as CNKeyDescriptor,
         CNContactFamilyNameKey as CNKeyDescriptor]
       let request = CNContactFetchRequest(keysToFetch: keysTofetch)
-      try contactStore.enumerateContacts(with: request, usingBlock: {cnContact, _ in
-              self.contacts.append(cnContact)
+      try contactStore.enumerateContacts(with: request, usingBlock: { cnContact, _ in
+        self.contacts.append(cnContact)
       })
+      for contact in 0..<(self.contacts.count) {
+        let contactItem = Contact(name: contacts[contact].givenName,
+                                    phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!)
+        array.append(contactItem)
+
+          do {
+            try storage.save(array, for: "contactItem")
+            print(contactItem)
+          //  let cached: Contact = try storage.fetch(for: "contactItem")
+          } catch {
+            print(error)
+          }
+      }
+
       DispatchQueue.main.async { [self] in
         NSLayoutConstraint.deactivate([
           accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -145,8 +166,8 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 //        }
 //      }
 //      cell.phoneNumber.text = phoneNumber
-      let number = contact.phoneNumbers[0].value
-      cell.phoneNumber.text = number.stringValue
+      let number = contact.phoneNumbers[0].value.stringValue
+      cell.phoneNumber.text = number
 
       var image = UIImage(systemName: "person.fill")
       if contact.isKeyAvailable(CNContactImageDataKey) {
@@ -162,6 +183,22 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 
   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     return 60
+  }
+
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    tableView.deselectRow(at: indexPath, animated: true)
+    let contact = contacts[indexPath.row]
+    var image = UIImage(systemName: "person.fill")
+    if contact.isKeyAvailable(CNContactImageDataKey) {
+      if let buf = contact.imageData {
+        image = UIImage(data: buf)
+      }
+    }
+   let viewController = InfoAboutContactViewController(
+      imageItem: image!,
+      titleItem: contacts[indexPath.row].givenName + " " + contacts[indexPath.row].familyName,
+      descriptionItem: contacts[indexPath.row].phoneNumbers[0].value.stringValue)
+    navigationController?.pushViewController(viewController, animated: true)
   }
 }
 
