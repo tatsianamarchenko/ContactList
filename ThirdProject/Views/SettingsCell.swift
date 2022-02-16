@@ -42,13 +42,17 @@ class SettingsCell: UITableViewCell {
     ])
   }
 
-
-//  func config(model : String) {
-//    phoneNumber.text = model.descriprion
-//    fullName.text = model.title
-//  }
+  func config(model: Contact) {
+    textField.text = model.name
+  }
 
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
+  }
+
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    lable.text = nil
+    textField.text = nil
   }
 }

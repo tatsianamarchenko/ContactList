@@ -16,7 +16,7 @@ class ContactCell: UITableViewCell {
     image.contentMode = .scaleAspectFill
     return image
   }()
-  
+
   var fullName: UILabel = {
     var title = UILabel()
     title.translatesAutoresizingMaskIntoConstraints = false
@@ -24,7 +24,7 @@ class ContactCell: UITableViewCell {
     title.textColor = .label
     return title
   }()
-  
+
   var phoneNumber: UILabel = {
     var descrip = UILabel()
     descrip.translatesAutoresizingMaskIntoConstraints = false
@@ -61,11 +61,11 @@ class ContactCell: UITableViewCell {
     image.layer.cornerRadius = 25
   }
 
-//  func config(model : Model) {
-//    phoneNumber.text = model.descriprion
-//    fullName.text = model.title
-//    image.image = model.image
-//  }
+  func config(model: Contact) {
+    phoneNumber.text = model.phoneNumber
+    fullName.text = model.name
+    image.image = model.image.getImage()
+  }
 
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")

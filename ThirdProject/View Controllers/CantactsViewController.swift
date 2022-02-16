@@ -12,7 +12,7 @@ class CantactsViewController: UIViewController {
 
   var contactStore = CNContactStore()
   var contacts = [CNContact]()
-  var array = [Contact]()
+  static var array = [Contact]()
   var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
 
   private lazy var accessButton: UIButton = {
@@ -46,7 +46,7 @@ class CantactsViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-  
+
     view.backgroundColor = .systemBackground
     view.addSubview(accessButton)
     view.addSubview(table)
@@ -91,12 +91,9 @@ class CantactsViewController: UIViewController {
 
   func loadContacts() {
     do {
-     contacts = [CNContact]()
+      contacts = [CNContact]()
 
-      let path = URL(fileURLWithPath: NSTemporaryDirectory())
-      print(path)
-      let disk = DiskStorage(path: path)
-      let storage = CodableStorage(storage: disk)
+      print(Helper.path)
 
       let keysTofetch = [
         CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
@@ -109,73 +106,54 @@ class CantactsViewController: UIViewController {
         self.contacts.append(cnContact)
       })
       for contact in 0..<(self.contacts.count) {
-        let contactItem = Contact(name: contacts[contact].givenName,
-                                    phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!)
-        array.append(contactItem)
 
-          do {
-            try storage.save(array, for: "contactItem")
-            print(contactItem)
-          //  let cached: Contact = try storage.fetch(for: "contactItem")
-          } catch {
-            print(error)
+        var image = UIImage(systemName: "person.fill")
+        if contacts[contact].isKeyAvailable(CNContactImageDataKey) {
+          if let buf = contacts[contact].imageData {
+            image = UIImage(data: buf)
           }
+        }
+
+        let contactItem = Contact(name: contacts[contact].givenName,
+                                  phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!, image: Image(withImage: image!))
+        CantactsViewController.array.append(contactItem)
+        do {
+          try Helper.storage.save(CantactsViewController.array, for: "contactItem")
+          print(contactItem)
+        } catch {
+          print(error)
+        }
       }
 
       DispatchQueue.main.async { [self] in
         NSLayoutConstraint.deactivate([
           accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-                accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
+          accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+          accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
         ])
 
         NSLayoutConstraint.activate([
-                table.widthAnchor.constraint(equalTo: view.widthAnchor),
-                table.heightAnchor.constraint(equalTo: view.heightAnchor)
+          table.widthAnchor.constraint(equalTo: view.widthAnchor),
+          table.heightAnchor.constraint(equalTo: view.heightAnchor)
         ])
         self.table.reloadData()
       }
     } catch {
-     print(error)
+      print(error)
     }
   }
 }
 
 extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return contacts.count
+    return CantactsViewController.array.count
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if let cell = table.dequeueReusableCell(withIdentifier: ContactCell.cellIdentifier, for: indexPath)
         as? ContactCell {
-      let contact = contacts[indexPath.row]
-
-      var fullName = "Имя не установлено"
-      if contact.areKeysAvailable([CNContactFormatter.descriptorForRequiredKeys(for: .fullName)]) {
-        if let buf = CNContactFormatter.string(from: contact, style: .fullName) {
-          fullName = buf
-        }
-      }
-      cell.fullName.text = fullName
-
-//      var phoneNumber = "Телефон не указан"
-//      if contact.isKeyAvailable(CNContactPhoneNumbersKey) {
-//        if let buf = contact.phoneNumbers.first {
-//          phoneNumber = buf.label ?? contact.phoneNumbers.last?.label ?? "lol"
-//        }
-//      }
-//      cell.phoneNumber.text = phoneNumber
-      let number = contact.phoneNumbers[0].value.stringValue
-      cell.phoneNumber.text = number
-
-      var image = UIImage(systemName: "person.fill")
-      if contact.isKeyAvailable(CNContactImageDataKey) {
-        if let buf = contact.imageData {
-          image = UIImage(data: buf)
-        }
-      }
-      cell.image.image = image
+      let contact = CantactsViewController.array[indexPath.row]
+      cell.config(model: contact)
       return cell
     }
     return UITableViewCell()
@@ -187,18 +165,30 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath, animated: true)
-    let contact = contacts[indexPath.row]
-    var image = UIImage(systemName: "person.fill")
-    if contact.isKeyAvailable(CNContactImageDataKey) {
-      if let buf = contact.imageData {
-        image = UIImage(data: buf)
-      }
-    }
-   let viewController = InfoAboutContactViewController(
-      imageItem: image!,
-      titleItem: contacts[indexPath.row].givenName + " " + contacts[indexPath.row].familyName,
-      descriptionItem: contacts[indexPath.row].phoneNumbers[0].value.stringValue)
+    let model = CantactsViewController.array[indexPath.row]
+    let viewController = InfoAboutContactViewController(
+      imageItem: model.image.getImage()!,
+      titleItem: model.name,
+      item: model)
     navigationController?.pushViewController(viewController, animated: true)
+  }
+
+  func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+    .delete
+  }
+
+  func tableView(_ tableView: UITableView,
+                 commit editingStyle: UITableViewCell.EditingStyle,
+                 forRowAt indexPath: IndexPath) {
+    if editingStyle == .delete {
+      CantactsViewController.array.remove(at: indexPath.row)
+      do {
+        try Helper.storage.save(CantactsViewController.array, for: "contactItem")
+      } catch {
+        print(error)
+      }
+      tableView.deleteRows(at: [indexPath], with: .fade)
+    }
   }
 }
 

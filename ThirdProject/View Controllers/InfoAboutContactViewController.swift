@@ -9,7 +9,12 @@ import UIKit
 
 class InfoAboutContactViewController: UIViewController {
 
-  var lableArray = ["Имя", "Номер"]
+  struct SettingsCellOption {
+    let textField: String
+    let nameOfRow: String
+  }
+
+  var sourceArray = [SettingsCellOption]()
 
   private lazy var image: UIImageView = {
     var image = UIImageView()
@@ -29,6 +34,7 @@ class InfoAboutContactViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
+
     view.backgroundColor = .systemBackground
     view.addSubview(table)
     view.addSubview(image)
@@ -50,11 +56,9 @@ class InfoAboutContactViewController: UIViewController {
                                       action: #selector(editInfo))
 
     navigationItem.rightBarButtonItem = emailButton
-
-
   }
+
   @objc func editInfo() {
- 
   }
 
   override func viewDidLayoutSubviews() {
@@ -63,33 +67,39 @@ class InfoAboutContactViewController: UIViewController {
     image.layer.cornerRadius = 75
   }
 
-  init(imageItem: UIImage, titleItem: String, descriptionItem: String) {
+  init(imageItem: UIImage, titleItem: String, item: Contact) {
     super.init(nibName: nil, bundle: nil)
     image.image = imageItem
-  
-//    fullName.text = titleItem
-//    phoneNumber.text = descriptionItem
     self.title = titleItem
+    newConfigure(model: item)
   }
 
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+
+  func newConfigure(model: Contact) {
+    self.sourceArray = [SettingsCellOption(textField: model.name, nameOfRow: "Имя"),
+                     SettingsCellOption(textField: model.phoneNumber, nameOfRow: "Номер")
+    ]
+  }
+
 }
 
 extension InfoAboutContactViewController: UITableViewDelegate, UITableViewDataSource {
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return lableArray.count
+    return sourceArray.count
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let cell = table.dequeueReusableCell(withIdentifier: SettingsCell.cellIdentifier, for: indexPath)
             as? SettingsCell else {
-      return UITableViewCell()
-    }
-    cell.lable.text = lableArray[indexPath.row]
-    cell.textField.text = "seg"
+              return UITableViewCell()
+            }
+    let model = sourceArray[indexPath.row]
+    cell.lable.text = model.nameOfRow
+    cell.textField.text = model.textField
     return cell
   }
 
@@ -100,7 +110,6 @@ extension InfoAboutContactViewController: UITableViewDelegate, UITableViewDataSo
   func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
     return image
   }
-
 }
 
 //По нажатию на ячейку открывается (push) экран детальной информации о контакте, на котором отображается отцентрированное и круглое фото контакта.
