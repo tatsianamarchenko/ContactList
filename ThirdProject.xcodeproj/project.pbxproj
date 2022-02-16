@@ -17,7 +17,6 @@
 		BF6A246A27BB0F53002A4FC8 /* FavoriteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */; };
 		BFE39ECC27BBC1B00062BC37 /* ContactCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */; };
 		BFE39ECE27BBF57B0062BC37 /* InfoAboutContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */; };
-		BFE39EF027BC21B80062BC37 /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EEF27BC21B80062BC37 /* SettingsCell.swift */; };
 		BFE39EF227BC33750062BC37 /* ContactModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EF127BC33750062BC37 /* ContactModel.swift */; };
 		BFE39EF727BC66AF0062BC37 /* Disk Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EF627BC66AF0062BC37 /* Disk Storage.swift */; };
 /* End PBXBuildFile section */
@@ -36,7 +35,6 @@
 		BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteViewController.swift; sourceTree = "<group>"; };
 		BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactCell.swift; sourceTree = "<group>"; };
 		BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoAboutContactViewController.swift; sourceTree = "<group>"; };
-		BFE39EEF27BC21B80062BC37 /* SettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
 		BFE39EF127BC33750062BC37 /* ContactModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactModel.swift; sourceTree = "<group>"; };
 		BFE39EF627BC66AF0062BC37 /* Disk Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Disk Storage.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -123,7 +121,6 @@
 		BFE39EF527BC66870062BC37 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				BFE39EEF27BC21B80062BC37 /* SettingsCell.swift */,
 				BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */,
 			);
 			path = Views;
@@ -230,7 +227,6 @@
 				BF6A244827BB03A8002A4FC8 /* SceneDelegate.swift in Sources */,
 				BF6A245E27BB08B4002A4FC8 /* TabBar.swift in Sources */,
 				BFE39EF727BC66AF0062BC37 /* Disk Storage.swift in Sources */,
-				BFE39EF027BC21B80062BC37 /* SettingsCell.swift in Sources */,
 				BF6A246A27BB0F53002A4FC8 /* FavoriteViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

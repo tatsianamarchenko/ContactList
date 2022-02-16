@@ -10,10 +10,34 @@ import Contacts
 
 class CantactsViewController: UIViewController {
 
+  static var indexAction = 0
   var contactStore = CNContactStore()
   var contacts = [CNContact]()
   static var array = [Contact]()
   var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
+
+  var menuAlertController: UIAlertController = {
+    var alert = UIAlertController(title: "Действия с контактом",
+                                  message: "Что вы хотите сделать с этим контактом?",
+                                  preferredStyle: .actionSheet)
+    var copy = UIAlertAction(title: "Скопировать телефон", style: .default) { _ in
+      UIPasteboard.general.string = CantactsViewController.array[CantactsViewController.indexAction].phoneNumber
+    }
+    var share = UIAlertAction(title: "Поделиться телефоном", style: .default, handler: nil)
+    var delete = UIAlertAction(title: "Удалить контакт", style: .default) { _ in
+    }
+    var cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+    alert.addAction(copy)
+    alert.addAction(share)
+    alert.addAction(delete)
+    alert.addAction(cancel)
+    //Долгое нажатие на ячейку контакта показывает Alert c именем контакта в заголовке и с четырьмя кнопками:
+    //Скопировать телефон (копирует номер телефона в буфер обмена)
+    //Поделиться телефоном (открывает UIActivityViewController)
+    //Удалить контакт (destructive operation, удаляет контакт из списка)
+    //Cancel (закрывает alert)
+    return alert
+  }()
 
   private lazy var accessButton: UIButton = {
     var button = UIButton(type: .roundedRect)
@@ -66,6 +90,21 @@ class CantactsViewController: UIViewController {
       loadContacts()
     default : break
     }
+
+    let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(longPressGestureRecognizer:)))
+    table.addGestureRecognizer(longPressRecognizer)
+  }
+
+  @objc func longPress(longPressGestureRecognizer: UILongPressGestureRecognizer) {
+    if longPressGestureRecognizer.state == UIGestureRecognizer.State.began {
+
+      let touchPoint = longPressGestureRecognizer.location(in: self.view)
+      if let indexPath = table.indexPathForRow(at: touchPoint) {
+        present(menuAlertController, animated: true)
+        print("longPress: \(indexPath.row-2)")
+        CantactsViewController.indexAction = indexPath.row-2
+      }
+    }
   }
 
   @objc func accessToContacts () {
@@ -92,9 +131,7 @@ class CantactsViewController: UIViewController {
   func loadContacts() {
     do {
       contacts = [CNContact]()
-
       print(Helper.path)
-
       let keysTofetch = [
         CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
         CNContactImageDataKey as CNKeyDescriptor,
@@ -114,12 +151,13 @@ class CantactsViewController: UIViewController {
           }
         }
 
-        let contactItem = Contact(name: contacts[contact].givenName,
-                                  phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!, image: Image(withImage: image!))
+        let contactItem = Contact(name: contacts[contact].givenName + " " + contacts[contact].familyName,
+                                  phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!,
+                                  image: Image(withImage: image!))
         CantactsViewController.array.append(contactItem)
         do {
           try Helper.storage.save(CantactsViewController.array, for: "contactItem")
-          print(contactItem)
+         // print(contactItem)
         } catch {
           print(error)
         }
@@ -165,11 +203,12 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath, animated: true)
+    let numberInArray = indexPath.row
     let model = CantactsViewController.array[indexPath.row]
     let viewController = InfoAboutContactViewController(
       imageItem: model.image.getImage()!,
       titleItem: model.name,
-      item: model)
+      item: model, numberInArray: numberInArray)
     navigationController?.pushViewController(viewController, animated: true)
   }
 
@@ -192,18 +231,12 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
   }
 }
 
-//У каждого таба должна быть иконка и текст. Иконка меняется, если таб. бар выбран (например, заливается цветом). Текст таба локализирован (ru, en)
-//Дополнительно можно сделать анимацию выбора таба (иконка подрагивает).
-
 //При первом запуске приложения посреди экрана отображается кнопка “Загрузить контакты”, по нажатию на которую запрашивается доступ к контактной книге и все контакты загружаются в приложение.
 //Каждый контакт - отдельная ячейка таблицы, у которой есть:
 
 //Номер телефона (отображается отформатированным: +375 29 123 45 67)
 //Иконка favourite: контакт добавлен в избранное (иконка сердечка).
 //Список контактов сохраняется между перезапусками приложения в файл на устройстве пользователя (используйте Codable для модели контакта)
-//
-//По нажатию на ячейку открывается (push) экран детальной информации о контакте, на котором отображается отцентрированное и круглое фото контакта.
-//Под фото расположите поля ввода, в которых отображаются фио и номер телефона. У каждого поля ввода есть title (заголовок, например: Phone Number)
 //
 //В nav bar есть кнопка Edit, которая по нажатию меняет своё состояние на Save и включает режим редактирования контакта.
 // Пользователь может отредактировать ФИО и номер телефона. Сохраняется контакт по нажатию на кнопку Save.
@@ -217,12 +250,6 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 //
 //Обработать ситуацию, когда пользователь запретил доступ к контактной книге: вывести сообщение
 //посередине экрана с просьбой предоставить доступ к контактной книге и кнопкой, которая перебрасывает пользователя в настройки вашего приложения.
-//
-// Любимые контакты
-//
-// Отображаются только те контакты, которые пользователь пометил как любимые. Список любимых
-// обновляется моментально без перезахода в приложение. Если пользователь удалил контакт на списке контактов, то он пропадает из списка любимых.
-
 // try contactStore.enumerateContacts(with: request, usingBlock: {cnContact, error in
 //        if cnContact.isKeyAvailable(CNContactEmailAddressesKey) {
 //          for entity in cnContact.emailAddresses {

@@ -8,14 +8,11 @@
 import Foundation
 import UIKit
 
-struct ContactsModel: Codable {
-  var contactsArray: [Contact]
-}
-
 struct Contact: Codable {
   var name: String
   var phoneNumber: String
   var image: Image
+  var isFavorite = false
 }
 
 struct Image: Codable {
