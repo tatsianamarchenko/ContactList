@@ -19,7 +19,7 @@
 		BFE39ECE27BBF57B0062BC37 /* InfoAboutContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */; };
 		BFE39EF027BC21B80062BC37 /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EEF27BC21B80062BC37 /* SettingsCell.swift */; };
 		BFE39EF227BC33750062BC37 /* ContactModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EF127BC33750062BC37 /* ContactModel.swift */; };
-		BFE39EF727BC66AF0062BC37 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EF627BC66AF0062BC37 /* Helper.swift */; };
+		BFE39EF727BC66AF0062BC37 /* Disk Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EF627BC66AF0062BC37 /* Disk Storage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,7 +38,7 @@
 		BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoAboutContactViewController.swift; sourceTree = "<group>"; };
 		BFE39EEF27BC21B80062BC37 /* SettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
 		BFE39EF127BC33750062BC37 /* ContactModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactModel.swift; sourceTree = "<group>"; };
-		BFE39EF627BC66AF0062BC37 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
+		BFE39EF627BC66AF0062BC37 /* Disk Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Disk Storage.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +52,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BF2E8BC827BD237000B1215C /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				BFE39EF627BC66AF0062BC37 /* Disk Storage.swift */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		BF2E8BC927BD23EA00B1215C /* Supporting files */ = {
+			isa = PBXGroup;
+			children = (
+				BF6A246727BB0D66002A4FC8 /* Localizable.strings */,
+				BF6A244E27BB03AA002A4FC8 /* Assets.xcassets */,
+				BF6A245027BB03AA002A4FC8 /* LaunchScreen.storyboard */,
+			);
+			path = "Supporting files";
+			sourceTree = "<group>";
+		};
 		BF6A243927BB03A8002A4FC8 = {
 			isa = PBXGroup;
 			children = (
@@ -73,14 +91,12 @@
 			children = (
 				BF6A244527BB03A8002A4FC8 /* AppDelegate.swift */,
 				BF6A244727BB03A8002A4FC8 /* SceneDelegate.swift */,
+				BF6A245D27BB08B4002A4FC8 /* TabBar.swift */,
 				BFE39EF427BC667A0062BC37 /* Models */,
 				BFE39EF527BC66870062BC37 /* Views */,
 				BFE39EF327BC66460062BC37 /* View Controllers */,
-				BF6A245D27BB08B4002A4FC8 /* TabBar.swift */,
-				BFE39EF627BC66AF0062BC37 /* Helper.swift */,
-				BF6A246727BB0D66002A4FC8 /* Localizable.strings */,
-				BF6A244E27BB03AA002A4FC8 /* Assets.xcassets */,
-				BF6A245027BB03AA002A4FC8 /* LaunchScreen.storyboard */,
+				BF2E8BC827BD237000B1215C /* Manager */,
+				BF2E8BC927BD23EA00B1215C /* Supporting files */,
 				BF6A245327BB03AA002A4FC8 /* Info.plist */,
 			);
 			path = ThirdProject;
@@ -213,7 +229,7 @@
 				BF6A244627BB03A8002A4FC8 /* AppDelegate.swift in Sources */,
 				BF6A244827BB03A8002A4FC8 /* SceneDelegate.swift in Sources */,
 				BF6A245E27BB08B4002A4FC8 /* TabBar.swift in Sources */,
-				BFE39EF727BC66AF0062BC37 /* Helper.swift in Sources */,
+				BFE39EF727BC66AF0062BC37 /* Disk Storage.swift in Sources */,
 				BFE39EF027BC21B80062BC37 /* SettingsCell.swift in Sources */,
 				BF6A246A27BB0F53002A4FC8 /* FavoriteViewController.swift in Sources */,
 			);
