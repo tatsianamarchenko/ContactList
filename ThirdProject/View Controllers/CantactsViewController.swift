@@ -38,6 +38,12 @@ class CantactsViewController: UIViewController {
     var alert = UIAlertController(title: "Доступ запрещен",
                                   message: "Для работы приложения необходимо разрешить доступ к контактам (перейдите в настройки приложения)",
                                   preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "Разрешить доступ", style: .default, handler: { _ in
+      if let appSettings = URL(string: UIApplication.openSettingsURLString),
+         UIApplication.shared.canOpenURL(appSettings) {
+        UIApplication.shared.open(appSettings)
+      }
+    }))
     alert.addAction(UIAlertAction(title: "Oтмена", style: .cancel, handler: nil))
     return alert
   }()
@@ -67,22 +73,22 @@ class CantactsViewController: UIViewController {
       ])
     case .authorized:
       do {
-      let cached: Contacts = try Helper.storage.fetch(for: "contactItem")
+        let cached: Contacts = try Helper.storage.fetch(for: "contactItem")
         for index in 0..<cached.contacts.count {
           contactsSourceArray.contacts.append(cached.contacts[index])
           print(cached.contacts[index])
-       }
-       DispatchQueue.main.async { [self] in
-         accessButton.removeFromSuperview()
-         NSLayoutConstraint.activate([
-           table.widthAnchor.constraint(equalTo: view.widthAnchor),
-           table.heightAnchor.constraint(equalTo: view.heightAnchor)
-         ])
-         self.table.reloadData()
-       }
-     } catch {
-       print(error)
-     }
+        }
+        DispatchQueue.main.async { [self] in
+          accessButton.removeFromSuperview()
+          NSLayoutConstraint.activate([
+            table.widthAnchor.constraint(equalTo: view.widthAnchor),
+            table.heightAnchor.constraint(equalTo: view.heightAnchor)
+          ])
+          self.table.reloadData()
+        }
+      } catch {
+        print(error)
+      }
 
     default : break
     }
@@ -101,7 +107,7 @@ class CantactsViewController: UIViewController {
           message: "Что вы хотите сделать с этим контактом?",
           preferredStyle: .actionSheet)
 
-        alert.addAction(UIAlertAction(title: "Скопировать телефон", style: .default, handler: { [self] _ in
+        alert.addAction(UIAlertAction(title: "Скопировать телефон", style: .default, handler: { _ in
           UIPasteboard.general.string = contactsSourceArray.contacts[indexPath.row].phoneNumber
         }))
 
@@ -247,15 +253,3 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 //
 //Обработать ситуацию, когда пользователь запретил доступ к контактной книге: вывести сообщение
 //посередине экрана с просьбой предоставить доступ к контактной книге и кнопкой, которая перебрасывает пользователя в настройки вашего приложения.
-// try contactStore.enumerateContacts(with: request, usingBlock: {cnContact, error in
-//        if cnContact.isKeyAvailable(CNContactEmailAddressesKey) {
-//          for entity in cnContact.emailAddresses {
-//           let strValue = entity.value as String
-//
-//    //  if entity.label == CNLabelHome && !strValue.isEmpty {
-//        self.contacts.append(cnContact)
-//       // break
-//    //  }
-//   // }
-//   }
-// })
