@@ -7,9 +7,11 @@
 
 import UIKit
 import Contacts
+
 var contactsSourceArray = Contacts(contacts: [Contact]())
+
 class CantactsViewController: UIViewController {
-  static var array = [Contact]()
+
   var contactStore = CNContactStore()
   var contacts = [CNContact]()
   var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
@@ -54,48 +56,50 @@ class CantactsViewController: UIViewController {
     view.backgroundColor = .systemBackground
     view.addSubview(accessButton)
     view.addSubview(table)
-
+    if contactsSourceArray.contacts.isEmpty {print("isEmpty")}
     table.dataSource = self
     table.delegate = self
 
     switch authorizationStatus {
-    case .notDetermined :
-      NSLayoutConstraint.activate([
-        accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-        accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
-      ])
-    case .restricted, .denied :
-      NSLayoutConstraint.activate([
-        accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-        accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
-      ])
+    case .notDetermined, .restricted, .denied :
+      addAccessButton()
     case .authorized:
       do {
+        accessButton.removeFromSuperview()
+        print(Helper.path)
         let cached: Contacts = try Helper.storage.fetch(for: "contactItem")
+        print(cached.contacts.count)
+        if cached.contacts.isEmpty {
+          addAccessButton()
+        }
         for index in 0..<cached.contacts.count {
           contactsSourceArray.contacts.append(cached.contacts[index])
           print(cached.contacts[index])
         }
-        DispatchQueue.main.async { [self] in
-          accessButton.removeFromSuperview()
-          NSLayoutConstraint.activate([
-            table.widthAnchor.constraint(equalTo: view.widthAnchor),
-            table.heightAnchor.constraint(equalTo: view.heightAnchor)
-          ])
-          self.table.reloadData()
-        }
+        NSLayoutConstraint.activate([
+          table.widthAnchor.constraint(equalTo: view.widthAnchor),
+          table.heightAnchor.constraint(equalTo: view.heightAnchor)
+        ])
+        self.table.reloadData()
       } catch {
+        addAccessButton()
         print(error)
       }
-
     default : break
     }
 
     let longPressRecognizer = UILongPressGestureRecognizer(target: self,
                                                            action: #selector(longPress(longPressGestureRecognizer:)))
     table.addGestureRecognizer(longPressRecognizer)
+  }
+
+  func addAccessButton () {
+    view.addSubview(accessButton)
+    NSLayoutConstraint.activate([
+      accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+      accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+      accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
+    ])
   }
 
   @objc func longPress(longPressGestureRecognizer: UILongPressGestureRecognizer) {
@@ -136,6 +140,7 @@ class CantactsViewController: UIViewController {
   @objc func accessToContacts () {
     authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
     switch authorizationStatus {
+    case .authorized : loadContacts()
     case .notDetermined:
       contactStore.requestAccess(for: .contacts) { [self] access, error in
         if access {
@@ -241,15 +246,6 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
   }
 }
 
-//При первом запуске приложения посреди экрана отображается кнопка “Загрузить контакты”, по нажатию на которую запрашивается доступ к контактной книге и все контакты загружаются в приложение.
-//Каждый контакт - отдельная ячейка таблицы, у которой есть:
-
-//Номер телефона (отображается отформатированным: +375 29 123 45 67)
-//Иконка favourite: контакт добавлен в избранное (иконка сердечка).
-//Список контактов сохраняется между перезапусками приложения в файл на устройстве пользователя (используйте Codable для модели контакта)
-//
-//В nav bar есть кнопка Edit, которая по нажатию меняет своё состояние на Save и включает режим редактирования контакта.
-// Пользователь может отредактировать ФИО и номер телефона. Сохраняется контакт по нажатию на кнопку Save.
-//
-//Обработать ситуацию, когда пользователь запретил доступ к контактной книге: вывести сообщение
-//посередине экрана с просьбой предоставить доступ к контактной книге и кнопкой, которая перебрасывает пользователя в настройки вашего приложения.
+// Каждый контакт - отдельная ячейка таблицы, у которой есть:
+// Номер телефона (отображается отформатированным: +375 29 123 45 67)
+// Иконка favourite: контакт добавлен в избранное (иконка сердечка).

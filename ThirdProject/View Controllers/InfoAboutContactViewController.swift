@@ -53,6 +53,7 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     textField.font = UIFont.systemFont(ofSize: 20)
     textField.textColor = .label
     textField.isUserInteractionEnabled = false
+    textField.keyboardType = .default
     return textField
   }()
 
@@ -63,6 +64,7 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     textField.textAlignment = .center
     textField.textColor = .secondaryLabel
     textField.isUserInteractionEnabled = false
+    textField.keyboardType = .namePhonePad
     return textField
   }()
 
@@ -89,7 +91,8 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     view.backgroundColor = .systemBackground
     phoneNumber.delegate = self
     fullName.delegate = self
-    let emailButton = UIBarButtonItem(image: isEdit ? UIImage(systemName: "square.and.arrow.down.fill")! : UIImage(systemName: "e.square.fill")!,
+    let emailButton = UIBarButtonItem(image: isEdit ? UIImage(systemName: "square.and.arrow.down.fill")! :
+                                        UIImage(systemName: "e.square.fill")!,
                                       style: .plain,
                                       target: self,
                                       action: #selector(editInfo))
@@ -159,10 +162,50 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
 
   func saveToArray () {
     do {
-      try Helper.storage.save(contactsSourceArray.contacts, for: "contactItem")
+      try Helper.storage.save(contactsSourceArray, for: "contactItem")
     } catch {
       print(error)
     }
+  }
+
+  let reg = try? NSRegularExpression(pattern: "[\\+\\s-\\(\\)]", options: .caseInsensitive)
+
+  func format (phoneNumber: String, shouldRemoveLastDigit: Bool) -> String {
+
+    guard !(shouldRemoveLastDigit && phoneNumber.count <= 2) else {
+      return "+"
+    }
+    let range = NSString(string: phoneNumber).range(of: phoneNumber)
+    var number = reg!.stringByReplacingMatches(in: phoneNumber, options: [], range: range, withTemplate: "")
+    if number.count > 11 {
+      let max = number.index(number.startIndex, offsetBy: 11)
+      number = String(number[number.startIndex..<max])
+    }
+
+    if shouldRemoveLastDigit {
+      let max = number.index(number.startIndex, offsetBy: number.count - 1)
+      number = String(number[number.startIndex..<max])
+    }
+
+    let maxIndex = number.index(number.startIndex, offsetBy: number.count)
+    let regRange = number.startIndex..<maxIndex
+
+    if number.count < 7 {
+      let pattern = "(\\d{3})(\\d{2})(\\d{2})"
+      number = number.replacingOccurrences(of: pattern, with: "$1 $2 $3", options: .regularExpression, range: regRange)
+    } else {
+      let pattern = "(\\d{3})(\\d{2})(\\d{3})(\\d{2})(\\d{2})"
+      number = number.replacingOccurrences(of: pattern, with: "$1 ($2) $3 $4 $5",
+                                           options: .regularExpression, range: regRange)
+    }
+    return "+" + number
+  }
+
+  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange,
+                 replacementString string: String) -> Bool {
+    let full = (textField.text ?? "") + string
+    textField.text = format(phoneNumber: full, shouldRemoveLastDigit: range.length == 1)
+    return false
   }
 
 }
