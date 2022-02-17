@@ -36,9 +36,9 @@ var arrayOfFavorite = [Contact]()
     super.viewWillAppear(animated)
     arrayOfFavorite = [Contact]()
     print("viewWillAppear")
-    for index in 0..<CantactsViewController.array.count {
-      if CantactsViewController.array[index].isFavorite {
-        arrayOfFavorite.append(CantactsViewController.array[index])
+    for index in 0..<contactsSourceArray.contacts.count {
+      if contactsSourceArray.contacts[index].isFavorite {
+        arrayOfFavorite.append(contactsSourceArray.contacts[index])
       }
     }
     table.reloadData()

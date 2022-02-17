@@ -8,6 +8,10 @@
 import Foundation
 import UIKit
 
+struct Contacts: Codable {
+  var contacts: [Contact]
+}
+
 struct Contact: Codable {
   var name: String
   var phoneNumber: String

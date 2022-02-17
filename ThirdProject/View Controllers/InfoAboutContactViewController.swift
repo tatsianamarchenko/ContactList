@@ -24,7 +24,7 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     var favoriteButton = UIButton()
     favoriteButton.translatesAutoresizingMaskIntoConstraints = false
     favoriteButton.setImage(UIImage(systemName:
-                                      CantactsViewController.array[numberInArray].isFavorite ?
+                                      contactsSourceArray.contacts[numberInArray].isFavorite ?
                                     "heart.fill" : "heart")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal),
                             for: .normal)
     favoriteButton.contentMode = .scaleAspectFill
@@ -33,8 +33,8 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
   }()
 
   @objc func addToFavorte() {
-    CantactsViewController.array[numberInArray].isFavorite.toggle()
-    if   CantactsViewController.array[numberInArray].isFavorite == true {
+    contactsSourceArray.contacts[numberInArray].isFavorite.toggle()
+    if   contactsSourceArray.contacts[numberInArray].isFavorite == true {
       favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
         .systemRed,
         renderingMode: .alwaysOriginal),
@@ -144,11 +144,11 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     } else {
       fullName.isUserInteractionEnabled = false
       fullName.resignFirstResponder()
-      CantactsViewController.array[numberInArray].name = fullName.text!
+      contactsSourceArray.contacts[numberInArray].name = fullName.text!
       saveToArray()
       phoneNumber.isUserInteractionEnabled = false
       phoneNumber.resignFirstResponder()
-      CantactsViewController.array[numberInArray].phoneNumber = phoneNumber.text!
+      contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
       saveToArray()
     }
   }
@@ -159,7 +159,7 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
 
   func saveToArray () {
     do {
-      try Helper.storage.save(CantactsViewController.array, for: "contactItem")
+      try Helper.storage.save(contactsSourceArray.contacts, for: "contactItem")
     } catch {
       print(error)
     }

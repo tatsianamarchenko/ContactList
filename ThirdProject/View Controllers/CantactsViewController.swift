@@ -7,12 +7,11 @@
 
 import UIKit
 import Contacts
-
+var contactsSourceArray = Contacts(contacts: [Contact]())
 class CantactsViewController: UIViewController {
-
+  static var array = [Contact]()
   var contactStore = CNContactStore()
   var contacts = [CNContact]()
-  static var array = [Contact]()
   var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
 
   private lazy var accessButton: UIButton = {
@@ -37,10 +36,9 @@ class CantactsViewController: UIViewController {
 
   private lazy var accessAlert: UIAlertController = {
     var alert = UIAlertController(title: "Доступ запрещен",
-                                  message: "Для работы приложения необходимо разрешить доступ к контактам",
+                                  message: "Для работы приложения необходимо разрешить доступ к контактам (перейдите в настройки приложения)",
                                   preferredStyle: .alert)
-    var cancel = UIAlertAction(title: "отмена", style: .cancel, handler: nil)
-    alert.addAction(cancel)
+    alert.addAction(UIAlertAction(title: "Oтмена", style: .cancel, handler: nil))
     return alert
   }()
 
@@ -54,16 +52,38 @@ class CantactsViewController: UIViewController {
     table.dataSource = self
     table.delegate = self
 
-    NSLayoutConstraint.activate([
-      accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-      accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-      accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
-    ])
     switch authorizationStatus {
+    case .notDetermined :
+      NSLayoutConstraint.activate([
+        accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
+      ])
     case .restricted, .denied :
-      present(accessAlert, animated: true)
+      NSLayoutConstraint.activate([
+        accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5)
+      ])
     case .authorized:
-      loadContacts()
+      do {
+      let cached: Contacts = try Helper.storage.fetch(for: "contactItem")
+        for index in 0..<cached.contacts.count {
+          contactsSourceArray.contacts.append(cached.contacts[index])
+          print(cached.contacts[index])
+       }
+       DispatchQueue.main.async { [self] in
+         accessButton.removeFromSuperview()
+         NSLayoutConstraint.activate([
+           table.widthAnchor.constraint(equalTo: view.widthAnchor),
+           table.heightAnchor.constraint(equalTo: view.heightAnchor)
+         ])
+         self.table.reloadData()
+       }
+     } catch {
+       print(error)
+     }
+
     default : break
     }
 
@@ -77,27 +97,32 @@ class CantactsViewController: UIViewController {
       let touchPoint = longPressGestureRecognizer.location(in: self.table)
       if let indexPath = table.indexPathForRow(at: touchPoint) {
         let alert = UIAlertController(
-          title: "Действия с контактом: \(CantactsViewController.array[indexPath.row].name)",
+          title: "Действия с контактом: \(contactsSourceArray.contacts[indexPath.row].name)",
           message: "Что вы хотите сделать с этим контактом?",
           preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "Скопировать телефон", style: .default, handler: { _ in
-          UIPasteboard.general.string = CantactsViewController.array[indexPath.row].phoneNumber
+
+        alert.addAction(UIAlertAction(title: "Скопировать телефон", style: .default, handler: { [self] _ in
+          UIPasteboard.general.string = contactsSourceArray.contacts[indexPath.row].phoneNumber
         }))
+
         alert.addAction(UIAlertAction(title: "Поделиться телефоном", style: .default, handler: { [self] _ in
-          let number = CantactsViewController.array[indexPath.row].phoneNumber
+          let number = contactsSourceArray.contacts[indexPath.row].phoneNumber
           let activityViewController =
           UIActivityViewController(activityItems: [number],
                                    applicationActivities: nil)
-          present(activityViewController, animated: true) 
+          present(activityViewController, animated: true)
 
         }))
+
         alert.addAction(UIAlertAction(title: "Удалить контакт", style: .default, handler: { [self] _ in
-          CantactsViewController.array.remove(at: indexPath.row)
+          contactsSourceArray.contacts.remove(at: indexPath.row)
+          saveToDisk()
           table.deleteRows(at: [indexPath], with: .fade)
         }))
+
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
         present(alert, animated: true, completion: nil)
-        print("longPress: \(indexPath.row)")
       }
     }
   }
@@ -110,14 +135,11 @@ class CantactsViewController: UIViewController {
         if access {
           loadContacts()
         } else {
-          // present(accessAlert, animated: true)
           print(error ?? "Ошибка доступа")
         }
       }
     case .restricted, .denied :
       present(accessAlert, animated: true)
-    case .authorized:
-      loadContacts()
     default:
       break
     }
@@ -128,7 +150,6 @@ class CantactsViewController: UIViewController {
       contacts = [CNContact]()
       print(Helper.path)
       let keysTofetch = [
-        CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
         CNContactImageDataKey as CNKeyDescriptor,
         CNContactGivenNameKey as CNKeyDescriptor,
         CNContactPhoneNumbersKey as CNKeyDescriptor,
@@ -137,28 +158,24 @@ class CantactsViewController: UIViewController {
       try contactStore.enumerateContacts(with: request, usingBlock: { cnContact, _ in
         self.contacts.append(cnContact)
       })
-      for contact in 0..<(self.contacts.count) {
-
+      for contact in 0..<self.contacts.count {
         var image = UIImage(systemName: "person.fill")
         if contacts[contact].isKeyAvailable(CNContactImageDataKey) {
-          if let buf = contacts[contact].imageData {
-            image = UIImage(data: buf)
+          if let ima = contacts[contact].imageData {
+            image = UIImage(data: ima)
           }
         }
 
         let contactItem = Contact(name: contacts[contact].givenName + " " + contacts[contact].familyName,
                                   phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!,
                                   image: Image(withImage: image!))
-        CantactsViewController.array.append(contactItem)
-        do {
-          try Helper.storage.save(CantactsViewController.array, for: "contactItem")
-         // print(contactItem)
-        } catch {
-          print(error)
-        }
+        contactsSourceArray.contacts.append(contactItem)
+        saveToDisk()
       }
-
       DispatchQueue.main.async { [self] in
+
+        accessButton.removeFromSuperview()
+
         NSLayoutConstraint.deactivate([
           accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
           accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -175,17 +192,27 @@ class CantactsViewController: UIViewController {
       print(error)
     }
   }
+
+  func saveToDisk() {
+    do {
+      try Helper.storage.save(contactsSourceArray, for: "contactItem")
+    } catch {
+      print(error)
+    }
+  }
+
 }
 
 extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
+
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return CantactsViewController.array.count
+    return contactsSourceArray.contacts.count
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if let cell = table.dequeueReusableCell(withIdentifier: ContactCell.cellIdentifier, for: indexPath)
         as? ContactCell {
-      let contact = CantactsViewController.array[indexPath.row]
+      let contact = contactsSourceArray.contacts[indexPath.row]
       cell.config(model: contact)
       return cell
     }
@@ -199,30 +226,12 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath, animated: true)
     let numberInArray = indexPath.row
-    let model = CantactsViewController.array[indexPath.row]
+    let model = contactsSourceArray.contacts[indexPath.row]
     let viewController = InfoAboutContactViewController(
       imageItem: model.image.getImage()!,
       titleItem: model.name,
       item: model, numberInArray: numberInArray)
     navigationController?.pushViewController(viewController, animated: true)
-  }
-
-  func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-    .delete
-  }
-
-  func tableView(_ tableView: UITableView,
-                 commit editingStyle: UITableViewCell.EditingStyle,
-                 forRowAt indexPath: IndexPath) {
-    if editingStyle == .delete {
-      CantactsViewController.array.remove(at: indexPath.row)
-      do {
-        try Helper.storage.save(CantactsViewController.array, for: "contactItem")
-      } catch {
-        print(error)
-      }
-      tableView.deleteRows(at: [indexPath], with: .fade)
-    }
   }
 }
 
@@ -235,13 +244,6 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 //
 //В nav bar есть кнопка Edit, которая по нажатию меняет своё состояние на Save и включает режим редактирования контакта.
 // Пользователь может отредактировать ФИО и номер телефона. Сохраняется контакт по нажатию на кнопку Save.
-//
-//Долгое нажатие на ячейку контакта показывает Alert c именем контакта в заголовке и с четырьмя кнопками:
-//Скопировать телефон (копирует номер телефона в буфер обмена)
-//Поделиться телефоном (открывает UIActivityViewController)
-//Удалить контакт (destructive operation, удаляет контакт из списка)
-//Cancel (закрывает alert)
-//Если пользователь удалил все контакты (список пустой), то ему снова отображается кнопка “Загрузить контакты”
 //
 //Обработать ситуацию, когда пользователь запретил доступ к контактной книге: вывести сообщение
 //посередине экрана с просьбой предоставить доступ к контактной книге и кнопкой, которая перебрасывает пользователя в настройки вашего приложения.
@@ -257,9 +259,3 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 //   // }
 //   }
 // })
-
-//    CNContactStore().requestAccess(for: .contacts) { [self]success, error in
-//      guard success else {
-//        print(error)
-//        return
-//      }
