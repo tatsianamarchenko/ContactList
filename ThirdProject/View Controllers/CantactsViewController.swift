@@ -10,34 +10,10 @@ import Contacts
 
 class CantactsViewController: UIViewController {
 
-  static var indexAction = 0
   var contactStore = CNContactStore()
   var contacts = [CNContact]()
   static var array = [Contact]()
   var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
-
-  var menuAlertController: UIAlertController = {
-    var alert = UIAlertController(title: "Действия с контактом",
-                                  message: "Что вы хотите сделать с этим контактом?",
-                                  preferredStyle: .actionSheet)
-    var copy = UIAlertAction(title: "Скопировать телефон", style: .default) { _ in
-      UIPasteboard.general.string = CantactsViewController.array[CantactsViewController.indexAction].phoneNumber
-    }
-    var share = UIAlertAction(title: "Поделиться телефоном", style: .default, handler: nil)
-    var delete = UIAlertAction(title: "Удалить контакт", style: .default) { _ in
-    }
-    var cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-    alert.addAction(copy)
-    alert.addAction(share)
-    alert.addAction(delete)
-    alert.addAction(cancel)
-    //Долгое нажатие на ячейку контакта показывает Alert c именем контакта в заголовке и с четырьмя кнопками:
-    //Скопировать телефон (копирует номер телефона в буфер обмена)
-    //Поделиться телефоном (открывает UIActivityViewController)
-    //Удалить контакт (destructive operation, удаляет контакт из списка)
-    //Cancel (закрывает alert)
-    return alert
-  }()
 
   private lazy var accessButton: UIButton = {
     var button = UIButton(type: .roundedRect)
@@ -91,18 +67,37 @@ class CantactsViewController: UIViewController {
     default : break
     }
 
-    let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress(longPressGestureRecognizer:)))
+    let longPressRecognizer = UILongPressGestureRecognizer(target: self,
+                                                           action: #selector(longPress(longPressGestureRecognizer:)))
     table.addGestureRecognizer(longPressRecognizer)
   }
 
   @objc func longPress(longPressGestureRecognizer: UILongPressGestureRecognizer) {
     if longPressGestureRecognizer.state == UIGestureRecognizer.State.began {
-
-      let touchPoint = longPressGestureRecognizer.location(in: self.view)
+      let touchPoint = longPressGestureRecognizer.location(in: self.table)
       if let indexPath = table.indexPathForRow(at: touchPoint) {
-        present(menuAlertController, animated: true)
-        print("longPress: \(indexPath.row-2)")
-        CantactsViewController.indexAction = indexPath.row-2
+        let alert = UIAlertController(
+          title: "Действия с контактом: \(CantactsViewController.array[indexPath.row].name)",
+          message: "Что вы хотите сделать с этим контактом?",
+          preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Скопировать телефон", style: .default, handler: { _ in
+          UIPasteboard.general.string = CantactsViewController.array[indexPath.row].phoneNumber
+        }))
+        alert.addAction(UIAlertAction(title: "Поделиться телефоном", style: .default, handler: { [self] _ in
+          let number = CantactsViewController.array[indexPath.row].phoneNumber
+          let activityViewController =
+          UIActivityViewController(activityItems: [number],
+                                   applicationActivities: nil)
+          present(activityViewController, animated: true) 
+
+        }))
+        alert.addAction(UIAlertAction(title: "Удалить контакт", style: .default, handler: { [self] _ in
+          CantactsViewController.array.remove(at: indexPath.row)
+          table.deleteRows(at: [indexPath], with: .fade)
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+        print("longPress: \(indexPath.row)")
       }
     }
   }
