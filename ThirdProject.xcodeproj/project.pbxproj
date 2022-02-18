@@ -89,7 +89,6 @@
 			children = (
 				BF6A244527BB03A8002A4FC8 /* AppDelegate.swift */,
 				BF6A244727BB03A8002A4FC8 /* SceneDelegate.swift */,
-				BF6A245D27BB08B4002A4FC8 /* TabBar.swift */,
 				BFE39EF427BC667A0062BC37 /* Models */,
 				BFE39EF527BC66870062BC37 /* Views */,
 				BFE39EF327BC66460062BC37 /* View Controllers */,
@@ -106,6 +105,7 @@
 				BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */,
 				BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */,
 				BF6A244927BB03A8002A4FC8 /* CantactsViewController.swift */,
+				BF6A245D27BB08B4002A4FC8 /* TabBar.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
