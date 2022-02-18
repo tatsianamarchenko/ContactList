@@ -38,7 +38,7 @@ class CantactsViewController: UIViewController {
 
   private lazy var accessAlert: UIAlertController = {
     var alert = UIAlertController(title: "Доступ запрещен",
-                                  message: "Для работы приложения необходимо разрешить доступ к контактам (перейдите в настройки приложения)",
+                                  message: "Для работы приложения необходимо разрешить доступ к контактам",
                                   preferredStyle: .alert)
     alert.addAction(UIAlertAction(title: "Разрешить доступ", style: .default, handler: { _ in
       if let appSettings = URL(string: UIApplication.openSettingsURLString),
@@ -61,7 +61,10 @@ class CantactsViewController: UIViewController {
     table.delegate = self
 
     switch authorizationStatus {
-    case .notDetermined, .restricted, .denied :
+    case .notDetermined :
+      addAccessButton()
+    case .restricted, .denied :
+      present(accessAlert, animated: true)
       addAccessButton()
     case .authorized:
       do {
@@ -128,6 +131,9 @@ class CantactsViewController: UIViewController {
           contactsSourceArray.contacts.remove(at: indexPath.row)
           saveToDisk()
           table.deleteRows(at: [indexPath], with: .fade)
+          if contactsSourceArray.contacts.isEmpty {
+            addAccessButton()
+          }
         }))
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -224,7 +230,7 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
     if let cell = table.dequeueReusableCell(withIdentifier: ContactCell.cellIdentifier, for: indexPath)
         as? ContactCell {
       let contact = contactsSourceArray.contacts[indexPath.row]
-      cell.config(model: contact)
+      cell.config(model: contact, indexPath: indexPath)
       return cell
     }
     return UITableViewCell()
@@ -236,46 +242,20 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath, animated: true)
-    let numberInArray = indexPath.row
     let model = contactsSourceArray.contacts[indexPath.row]
     let viewController = InfoAboutContactViewController(
       imageItem: model.image.getImage()!,
       titleItem: model.name,
-      item: model, numberInArray: numberInArray)
+      item: model,
+      indexPath: indexPath)
     navigationController?.pushViewController(viewController, animated: true)
   }
+
 }
 
-//Список контактов
-//
-//Экран с navigation bar (локализированный заголовок)
-//
-//При первом запуске приложения посреди экрана отображается кнопка “Загрузить контакты”, по нажатию на которую запрашивается доступ к контактной книге и все контакты загружаются в приложение.
 //Каждый контакт - отдельная ячейка таблицы, у которой есть:
-//
-//Фотография (если фото нет, то установить любую картинку по умолчанию на ваш вкус)
-//ФИО
 //Номер телефона (отображается отформатированным: +375 29 123 45 67)
-//Иконка favourite: контакт добавлен в избранное (иконка сердечка).
-//Список контактов сохраняется между перезапусками приложения в файл на устройстве пользователя (используйте Codable для модели контакта)
-//
-//По нажатию на ячейку открывается (push) экран детальной информации о контакте, на котором отображается отцентрированное и круглое фото контакта.
+//По нажатию на ячейку открывается (push) экран детальной информации о контакте
 //Под фото расположите поля ввода, в которых отображаются фио и номер телефона. У каждого поля ввода есть title (заголовок, например: Phone Number)
-//
 //В nav bar есть кнопка Edit, которая по нажатию меняет своё состояние на Save и включает режим редактирования контакта.
 // Пользователь может отредактировать ФИО и номер телефона. Сохраняется контакт по нажатию на кнопку Save.
-//
-//Долгое нажатие на ячейку контакта показывает Alert c именем контакта в заголовке и с четырьмя кнопками:
-//Скопировать телефон (копирует номер телефона в буфер обмена)
-//Поделиться телефоном (открывает UIActivityViewController)
-//Удалить контакт (destructive operation, удаляет контакт из списка)
-//Cancel (закрывает alert)
-//Если пользователь удалил все контакты (список пустой), то ему снова отображается кнопка “Загрузить контакты”
-//
-//Обработать ситуацию, когда пользователь запретил доступ к контактной книге:
-// вывести сообщение посередине экрана с просьбой предоставить доступ к контактной книге и кнопкой, которая перебрасывает пользователя в настройки вашего приложения.
-//
-//Любимые контакты
-//
-//Отображаются только те контакты, которые пользователь пометил как любимые. Список любимых обновляется моментально без перезахода в приложение.
-// Если пользователь удалил контакт на списке контактов, то он пропадает из списка любимых.

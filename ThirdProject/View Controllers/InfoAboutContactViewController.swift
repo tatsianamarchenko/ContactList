@@ -20,21 +20,18 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     return image
   }()
 
-  private lazy var favoriteButton: UIButton = {
-    var favoriteButton = UIButton()
+  private lazy var favoriteButton: IndexedButton = {
+    var favoriteButton = IndexedButton(buttonIndexPath: IndexPath(index: 0))
     favoriteButton.translatesAutoresizingMaskIntoConstraints = false
-    favoriteButton.setImage(UIImage(systemName:
-                                      contactsSourceArray.contacts[numberInArray].isFavorite ?
-                                    "heart.fill" : "heart")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal),
-                            for: .normal)
     favoriteButton.contentMode = .scaleAspectFill
     favoriteButton.addTarget(self, action: #selector(addToFavorte), for: .touchUpInside)
     return favoriteButton
   }()
 
-  @objc func addToFavorte() {
-    contactsSourceArray.contacts[numberInArray].isFavorite.toggle()
-    if   contactsSourceArray.contacts[numberInArray].isFavorite == true {
+  @objc func addToFavorte(_ sender: IndexedButton) {
+    let index = sender.buttonIndexPath.row
+    contactsSourceArray.contacts[index].isFavorite.toggle()
+    if   contactsSourceArray.contacts[index].isFavorite == true {
       favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
         .systemRed,
         renderingMode: .alwaysOriginal),
@@ -128,13 +125,18 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     image.layer.cornerRadius = 75
   }
 
-  init(imageItem: UIImage, titleItem: String, item: Contact, numberInArray: Int) {
+  init(imageItem: UIImage, titleItem: String, item: Contact, indexPath: IndexPath) {
     super.init(nibName: nil, bundle: nil)
     image.image = imageItem
     fullName.text = item.name
     phoneNumber.text = item.phoneNumber
     self.title = titleItem
-    self.numberInArray = numberInArray
+    self.numberInArray = indexPath.row
+    favoriteButton.setImage(UIImage(systemName:
+                                      item.isFavorite ?
+                                    "heart.fill" : "heart")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal),
+                            for: .normal)
+    favoriteButton.buttonIndexPath = indexPath
   }
 
   @objc func editInfo() {
@@ -209,5 +211,3 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
   }
 
 }
-// В nav bar есть кнопка Edit, которая по нажатию меняет своё состояние на Save и включает режим редактирования контакта.
-// Пользователь может отредактировать ФИО и номер телефона. Сохраняется контакт по нажатию на кнопку Save.

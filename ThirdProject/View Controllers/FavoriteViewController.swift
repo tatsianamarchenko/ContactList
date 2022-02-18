@@ -55,7 +55,7 @@ extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {
     if let cell = table.dequeueReusableCell(withIdentifier: ContactCell.cellIdentifier, for: indexPath)
         as? ContactCell {
       let contact = arrayOfFavorite[indexPath.row]
-      cell.config(model: contact)
+      cell.config(model: contact, indexPath: indexPath)
       return cell
     }
     return UITableViewCell()

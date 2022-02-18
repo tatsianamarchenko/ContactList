@@ -9,7 +9,7 @@ import UIKit
 
 class ContactCell: UITableViewCell {
 
-  var image: UIImageView = {
+  private lazy var image: UIImageView = {
     var image = UIImageView()
     image.translatesAutoresizingMaskIntoConstraints = false
     image.backgroundColor = .systemGray3
@@ -17,7 +17,7 @@ class ContactCell: UITableViewCell {
     return image
   }()
 
-  var fullName: UILabel = {
+  private lazy  var fullName: UILabel = {
     var title = UILabel()
     title.translatesAutoresizingMaskIntoConstraints = false
     title.font = UIFont.systemFont(ofSize: 20)
@@ -25,13 +25,45 @@ class ContactCell: UITableViewCell {
     return title
   }()
 
-  var phoneNumber: UILabel = {
+  private lazy  var phoneNumber: UILabel = {
     var descrip = UILabel()
     descrip.translatesAutoresizingMaskIntoConstraints = false
     descrip.font = UIFont.systemFont(ofSize: 16)
     descrip.textColor = .secondaryLabel
     return descrip
   }()
+
+  private lazy var favoriteButton: IndexedButton = {
+    var favoriteButton = IndexedButton(buttonIndexPath: IndexPath(index: 0))
+    favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+    favoriteButton.contentMode = .scaleAspectFill
+    favoriteButton.addTarget(self, action: #selector(addToFavorte), for: .touchUpInside)
+    return favoriteButton
+  }()
+
+  @objc func addToFavorte(_ sender: IndexedButton) {
+    let index = sender.buttonIndexPath.row
+    contactsSourceArray.contacts[index].isFavorite.toggle()
+    if   contactsSourceArray.contacts[index].isFavorite == true {
+      favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
+        .systemRed,
+        renderingMode: .alwaysOriginal),
+                              for: .normal)
+      saveToArray()
+    } else {
+      favoriteButton.setImage(UIImage(systemName: "heart")?.withTintColor(.systemRed,
+                                                                          renderingMode: .alwaysOriginal), for: .normal)
+      saveToArray()
+    }
+  }
+
+  func saveToArray () {
+    do {
+      try Helper.storage.save(contactsSourceArray, for: "contactItem")
+    } catch {
+      print(error)
+    }
+  }
 
   static var cellIdentifier = "ContactCell"
 
@@ -40,6 +72,7 @@ class ContactCell: UITableViewCell {
     contentView.addSubview(phoneNumber)
     contentView.addSubview(image)
     contentView.addSubview(fullName)
+    contentView.addSubview(favoriteButton)
 
     NSLayoutConstraint.activate([
       fullName.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 20),
@@ -51,7 +84,10 @@ class ContactCell: UITableViewCell {
       image.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
       image.topAnchor.constraint(equalTo: fullName.topAnchor),
       image.widthAnchor.constraint(equalToConstant: 50),
-      image.heightAnchor.constraint(equalToConstant: 50)
+      image.heightAnchor.constraint(equalToConstant: 50),
+
+      favoriteButton.topAnchor.constraint(equalTo: image.topAnchor, constant: 5),
+      favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
     ])
   }
 
@@ -61,13 +97,33 @@ class ContactCell: UITableViewCell {
     image.layer.cornerRadius = 25
   }
 
-  func config(model: Contact) {
+  func config(model: Contact, indexPath: IndexPath) {
     phoneNumber.text = model.phoneNumber
     fullName.text = model.name
     image.image = model.image.getImage()
+    favoriteButton.setImage(UIImage(systemName:
+                                         model.isFavorite ?
+                                    "heart.fill" : "heart")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal),
+                            for: .normal)
+    favoriteButton.buttonIndexPath = indexPath
   }
 
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+}
+
+
+class IndexedButton: UIButton {
+
+    var buttonIndexPath: IndexPath
+
+    init(buttonIndexPath: IndexPath) {
+        self.buttonIndexPath = buttonIndexPath
+      super.init(frame: .zero)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
