@@ -9,6 +9,7 @@ import UIKit
 
 class InfoAboutContactViewController: UIViewController {
 
+var contactsModel = ContactsModel()
   var numberInArray = 0
   var isEdit = false
 
@@ -28,22 +29,6 @@ class InfoAboutContactViewController: UIViewController {
     return favoriteButton
   }()
 
-  @objc func addToFavorte(_ sender: IndexedButton) {
-    let index = sender.buttonIndexPath.row
-    contactsSourceArray.contacts[index].isFavorite.toggle()
-    if   contactsSourceArray.contacts[index].isFavorite == true {
-      favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
-        .systemRed,
-        renderingMode: .alwaysOriginal),
-                              for: .normal)
-      saveToArray()
-    } else {
-      favoriteButton.setImage(UIImage(systemName: "heart")?.withTintColor(.systemRed,
-                                                                          renderingMode: .alwaysOriginal), for: .normal)
-      saveToArray()
-    }
-  }
-
   private lazy var fullName: UITextField = {
     var textField = UITextField()
     configTextField(textField: textField)
@@ -57,7 +42,7 @@ class InfoAboutContactViewController: UIViewController {
   private lazy var phoneNumber: UITextField = {
     var textField = UITextField()
     configTextField(textField: textField)
-    textField.keyboardType = .namePhonePad
+    textField.keyboardType = .phonePad
     textField.placeholder = "Введите номер"
     return textField
   }()
@@ -103,23 +88,22 @@ class InfoAboutContactViewController: UIViewController {
     mainStack.translatesAutoresizingMaskIntoConstraints = false
     mainStack.axis = .vertical
     mainStack.alignment = .center
-    mainStack.backgroundColor = .systemMint
     view.addSubview(mainStack)
 
     NSLayoutConstraint.activate([
       mainStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
       mainStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-      stackFullName.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -30),
-      stackPhoneNumber.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -30),
-      image.widthAnchor.constraint(equalToConstant: 130),
-      image.heightAnchor.constraint(equalToConstant: 130)
+      stackFullName.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -80),
+      stackPhoneNumber.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -80),
+      image.widthAnchor.constraint(equalToConstant: 120),
+      image.heightAnchor.constraint(equalToConstant: 120)
     ])
 
     NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification,
                                            object: nil,
                                            queue: nil) { [self] notification in
-      if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey]
-                             as? NSValue)?.cgRectValue {
+      if ((notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey]
+           as? NSValue)?.cgRectValue) != nil {
         UIView.animate(withDuration: 0.1, animations: { () -> Void in
           self.view.frame.origin.y = -70
           self.view.layoutIfNeeded()
@@ -130,7 +114,7 @@ class InfoAboutContactViewController: UIViewController {
                                            object: nil,
                                            queue: nil) { notification in
       if ((notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey]
-           as? NSValue)?.cgRectValue) != nil {
+            as? NSValue)?.cgRectValue) != nil {
         UIView.animate(withDuration: 0.1, animations: { () -> Void in
           self.view.frame.origin.y = 0
           self.view.layoutIfNeeded()
@@ -139,14 +123,19 @@ class InfoAboutContactViewController: UIViewController {
     }
   }
 
-  deinit {
-    NotificationCenter.default.removeObserver(self)
+  override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    super.viewWillTransition(to: size, with: coordinator)
+//    print("qwertyui")
+//    NSLayoutConstraint.activate([
+//      image.widthAnchor.constraint(equalToConstant: 60),
+//      image.heightAnchor.constraint(equalToConstant: 60)
+//    ])
   }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     image.clipsToBounds = true
-    image.layer.cornerRadius = 65
+    image.layer.cornerRadius = 60
   }
 
   init(imageItem: UIImage, titleItem: String, item: Contact, indexPath: IndexPath) {
@@ -163,13 +152,39 @@ class InfoAboutContactViewController: UIViewController {
     favoriteButton.buttonIndexPath = indexPath
   }
 
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self)
+  }
+
   func createBarButton() {
-    let emailButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down.fill")!,
+    let button = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down.fill")!,
                                       style: .plain,
                                       target: self,
                                       action: #selector(editInfo))
 
-    navigationItem.rightBarButtonItem = emailButton
+    navigationItem.rightBarButtonItem = button
+  }
+
+  @objc func addToFavorte(_ sender: IndexedButton) {
+    let index = sender.buttonIndexPath.row
+    ContactsModel.contactsSourceArray.contacts[index].isFavorite.toggle()
+    if   ContactsModel.contactsSourceArray.contacts[index].isFavorite == true {
+      favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
+        .systemRed,
+        renderingMode: .alwaysOriginal),
+                              for: .normal)
+      contactsModel.saveToDisk()
+    } else {
+      favoriteButton.setImage(UIImage(systemName: "heart")?.withTintColor(
+        .systemRed,
+        renderingMode: .alwaysOriginal),
+                              for: .normal)
+      contactsModel.saveToDisk()
+    }
   }
 
   @objc func editInfo(_ sender: UIBarButtonItem) {
@@ -181,29 +196,14 @@ class InfoAboutContactViewController: UIViewController {
       phoneNumber.isUserInteractionEnabled = true
       fullName.becomeFirstResponder()
     } else {
-      isEdit = false
       sender.image = UIImage(systemName: "square.and.arrow.down.fill")!
       fullName.isUserInteractionEnabled = false
       phoneNumber.isUserInteractionEnabled = false
       fullName.resignFirstResponder()
-      contactsSourceArray.contacts[numberInArray].name = fullName.text!
+      ContactsModel.contactsSourceArray.contacts[numberInArray].name = fullName.text!
       phoneNumber.resignFirstResponder()
-      contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
-      saveToArray()
-
-    }
-  }
-
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
-  func saveToArray () {
-    do {
-      try Helper.storage.save(contactsSourceArray, for: "contactItem")
-      print("saved")
-    } catch {
-      print(error)
+      ContactsModel.contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
+      contactsModel.saveToDisk()
     }
   }
 
@@ -212,12 +212,12 @@ class InfoAboutContactViewController: UIViewController {
     let mask = "+XXX (XX) XXX-XX-XX"
     var result = ""
     var index = cleanPhoneNumber.startIndex
-    for ch in mask where index < cleanPhoneNumber.endIndex {
-      if ch == "X" {
+    for character in mask where index < cleanPhoneNumber.endIndex {
+      if character == "X" {
         result.append(cleanPhoneNumber[index])
         index = cleanPhoneNumber.index(after: index)
       } else {
-        result.append(ch)
+        result.append(character)
       }
     }
     return result
@@ -243,12 +243,12 @@ extension InfoAboutContactViewController: UITextFieldDelegate {
       self.title = fullName.text
       textField.resignFirstResponder()
       phoneNumber.becomeFirstResponder()
-      contactsSourceArray.contacts[numberInArray].name = fullName.text!
-      saveToArray()
+      ContactsModel.contactsSourceArray.contacts[numberInArray].name = fullName.text!
+      contactsModel.saveToDisk()
     } else {
       textField.resignFirstResponder()
-      contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
-      saveToArray()
+      ContactsModel.contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
+      contactsModel.saveToDisk()
     }
     return true
   }

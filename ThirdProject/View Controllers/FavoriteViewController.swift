@@ -10,7 +10,7 @@ import UIKit
 class FavoriteViewController: UIViewController {
 
 var arrayOfFavorite = [Contact]()
-
+var contactsModel = ContactsModel()
   private lazy var table: UITableView = {
     let table = UITableView()
     table.register(ContactCell.self, forCellReuseIdentifier: ContactCell.cellIdentifier)
@@ -35,9 +35,9 @@ var arrayOfFavorite = [Contact]()
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     arrayOfFavorite = [Contact]()
-    for index in 0..<contactsSourceArray.contacts.count {
-      if contactsSourceArray.contacts[index].isFavorite {
-        arrayOfFavorite.append(contactsSourceArray.contacts[index])
+    for index in 0..<ContactsModel.contactsSourceArray.contacts.count {
+      if ContactsModel.contactsSourceArray.contacts[index].isFavorite {
+        arrayOfFavorite.append(ContactsModel.contactsSourceArray.contacts[index])
       }
     }
     table.reloadData()

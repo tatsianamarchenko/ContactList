@@ -7,6 +7,67 @@
 
 import Foundation
 import UIKit
+import Contacts
+
+class ContactsModel {
+ static var contactsSourceArray = Contacts(contacts: [Contact]())
+  var contactStore = CNContactStore()
+  var contacts = [CNContact]()
+  var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
+
+  func fetchCachedContacts() -> Contacts {
+    do {
+      let cached: Contacts = try Helper.storage.fetch(for: "contactItem")
+      for index in 0..<cached.contacts.count {
+        ContactsModel.contactsSourceArray.contacts.append(cached.contacts[index])
+      }
+      return cached
+    } catch {
+      print(error)
+    }
+    return Contacts(contacts: [Contact]())
+  }
+
+  func loadContacts() {
+    do {
+      contacts = [CNContact]()
+      print(Helper.path)
+      let keysTofetch = [
+        CNContactImageDataKey as CNKeyDescriptor,
+        CNContactGivenNameKey as CNKeyDescriptor,
+        CNContactPhoneNumbersKey as CNKeyDescriptor,
+        CNContactFamilyNameKey as CNKeyDescriptor]
+      let request = CNContactFetchRequest(keysToFetch: keysTofetch)
+      try contactStore.enumerateContacts(with: request, usingBlock: { cnContact, _ in
+        self.contacts.append(cnContact)
+      })
+      for contact in 0..<self.contacts.count {
+        var image = UIImage(named: "account")
+        if contacts[contact].isKeyAvailable(CNContactImageDataKey) {
+          if let ima = contacts[contact].imageData {
+            image = UIImage(data: ima)
+          }
+        }
+
+        let contactItem = Contact(name: contacts[contact].givenName + " " + contacts[contact].familyName,
+                                  phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!,
+                                  image: Image(withImage: image!))
+        ContactsModel.contactsSourceArray.contacts.append(contactItem)
+        saveToDisk()
+      }
+    } catch {
+      print(error)
+    }
+  }
+
+  func saveToDisk() {
+    do {
+      try Helper.storage.save(ContactsModel.contactsSourceArray, for: "contactItem")
+    } catch {
+      print(error)
+    }
+  }
+}
 
 struct Contacts: Codable {
   var contacts: [Contact]
@@ -31,7 +92,6 @@ struct Image: Codable {
             return nil
         }
         let image = UIImage(data: imageData)
-
         return image
     }
 }

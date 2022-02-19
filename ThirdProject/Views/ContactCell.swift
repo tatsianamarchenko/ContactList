@@ -9,6 +9,8 @@ import UIKit
 
 class ContactCell: UITableViewCell {
 
+var contactsModel = ContactsModel()
+
   private lazy var image: UIImageView = {
     var image = UIImageView()
     image.translatesAutoresizingMaskIntoConstraints = false
@@ -43,25 +45,17 @@ class ContactCell: UITableViewCell {
 
   @objc func addToFavorte(_ sender: IndexedButton) {
     let index = sender.buttonIndexPath.row
-    contactsSourceArray.contacts[index].isFavorite.toggle()
-    if   contactsSourceArray.contacts[index].isFavorite == true {
+    ContactsModel.contactsSourceArray.contacts[index].isFavorite.toggle()
+    if   ContactsModel.contactsSourceArray.contacts[index].isFavorite == true {
       favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
         .systemRed,
         renderingMode: .alwaysOriginal),
                               for: .normal)
-      saveToArray()
+      contactsModel.saveToDisk()
     } else {
       favoriteButton.setImage(UIImage(systemName: "heart")?.withTintColor(.systemRed,
                                                                           renderingMode: .alwaysOriginal), for: .normal)
-      saveToArray()
-    }
-  }
-
-  func saveToArray () {
-    do {
-      try Helper.storage.save(contactsSourceArray, for: "contactItem")
-    } catch {
-      print(error)
+      contactsModel.saveToDisk()
     }
   }
 
