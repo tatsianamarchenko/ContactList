@@ -7,7 +7,7 @@
 
 import UIKit
 
-class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
+class InfoAboutContactViewController: UIViewController {
 
   var numberInArray = 0
   var isEdit = false
@@ -46,24 +46,31 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
 
   private lazy var fullName: UITextField = {
     var textField = UITextField()
-    textField.translatesAutoresizingMaskIntoConstraints = false
-    textField.font = UIFont.systemFont(ofSize: 20)
-    textField.textColor = .label
-    textField.isUserInteractionEnabled = false
+    configTextField(textField: textField)
     textField.keyboardType = .default
+    textField.autocapitalizationType = .words
+    textField.autocorrectionType = .no
+    textField.placeholder = "Введите имя"
     return textField
   }()
 
   private lazy var phoneNumber: UITextField = {
     var textField = UITextField()
+    configTextField(textField: textField)
+    textField.keyboardType = .namePhonePad
+    textField.placeholder = "Введите номер"
+    return textField
+  }()
+
+  func configTextField (textField: UITextField) {
     textField.translatesAutoresizingMaskIntoConstraints = false
     textField.font = UIFont.systemFont(ofSize: 20)
     textField.textAlignment = .center
-    textField.textColor = .secondaryLabel
+    textField.textColor = .label
+    textField.clearButtonMode = .whileEditing
     textField.isUserInteractionEnabled = false
-    textField.keyboardType = .namePhonePad
-    return textField
-  }()
+    textField.contentMode = .center
+  }
 
   func createStack(textField: UITextField, name: String) -> UIStackView {
     let lable = UILabel()
@@ -88,41 +95,58 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     view.backgroundColor = .systemBackground
     phoneNumber.delegate = self
     fullName.delegate = self
-    let emailButton = UIBarButtonItem(image: isEdit ? UIImage(systemName: "square.and.arrow.down.fill")! :
-                                        UIImage(systemName: "e.square.fill")!,
-                                      style: .plain,
-                                      target: self,
-                                      action: #selector(editInfo))
-
-    navigationItem.rightBarButtonItem = emailButton
-
-    let stackFullName = createStack(textField: fullName, name: "имя")
-    let stackPhoneNumber = createStack(textField: phoneNumber, name: "номер")
+    createBarButton()
+    let stackFullName = createStack(textField: fullName, name: "Имя")
+    let stackPhoneNumber = createStack(textField: phoneNumber, name: "Номер")
 
     let mainStack = UIStackView(arrangedSubviews: [image, stackFullName, stackPhoneNumber, favoriteButton])
     mainStack.translatesAutoresizingMaskIntoConstraints = false
     mainStack.axis = .vertical
     mainStack.alignment = .center
+    mainStack.backgroundColor = .systemMint
     view.addSubview(mainStack)
 
     NSLayoutConstraint.activate([
       mainStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
       mainStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-      //    stackFullName.heightAnchor.constraint(equalToConstant: 50),
       stackFullName.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -30),
-
-      stackPhoneNumber.topAnchor.constraint(equalTo: fullName.bottomAnchor, constant: 10),
       stackPhoneNumber.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -30),
-
-      image.widthAnchor.constraint(equalToConstant: 150),
-      image.heightAnchor.constraint(equalToConstant: 150)
+      image.widthAnchor.constraint(equalToConstant: 130),
+      image.heightAnchor.constraint(equalToConstant: 130)
     ])
+
+    NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification,
+                                           object: nil,
+                                           queue: nil) { [self] notification in
+      if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey]
+                             as? NSValue)?.cgRectValue {
+        UIView.animate(withDuration: 0.1, animations: { () -> Void in
+          self.view.frame.origin.y = -70
+          self.view.layoutIfNeeded()
+        })
+      }
+    }
+    NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification,
+                                           object: nil,
+                                           queue: nil) { notification in
+      if ((notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey]
+           as? NSValue)?.cgRectValue) != nil {
+        UIView.animate(withDuration: 0.1, animations: { () -> Void in
+          self.view.frame.origin.y = 0
+          self.view.layoutIfNeeded()
+        })
+      }
+    }
+  }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self)
   }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     image.clipsToBounds = true
-    image.layer.cornerRadius = 75
+    image.layer.cornerRadius = 65
   }
 
   init(imageItem: UIImage, titleItem: String, item: Contact, indexPath: IndexPath) {
@@ -139,22 +163,34 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
     favoriteButton.buttonIndexPath = indexPath
   }
 
-  @objc func editInfo() {
+  func createBarButton() {
+    let emailButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down.fill")!,
+                                      style: .plain,
+                                      target: self,
+                                      action: #selector(editInfo))
+
+    navigationItem.rightBarButtonItem = emailButton
+  }
+
+  @objc func editInfo(_ sender: UIBarButtonItem) {
     isEdit.toggle()
     print(isEdit)
     if isEdit == true {
+      sender.image = UIImage(systemName: "e.square.fill")!
       fullName.isUserInteractionEnabled = true
       phoneNumber.isUserInteractionEnabled = true
       fullName.becomeFirstResponder()
     } else {
+      isEdit = false
+      sender.image = UIImage(systemName: "square.and.arrow.down.fill")!
       fullName.isUserInteractionEnabled = false
+      phoneNumber.isUserInteractionEnabled = false
       fullName.resignFirstResponder()
       contactsSourceArray.contacts[numberInArray].name = fullName.text!
-      saveToArray()
-      phoneNumber.isUserInteractionEnabled = false
       phoneNumber.resignFirstResponder()
       contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
       saveToArray()
+
     }
   }
 
@@ -165,49 +201,55 @@ class InfoAboutContactViewController: UIViewController, UITextFieldDelegate {
   func saveToArray () {
     do {
       try Helper.storage.save(contactsSourceArray, for: "contactItem")
+      print("saved")
     } catch {
       print(error)
     }
   }
 
-  let reg = try? NSRegularExpression(pattern: "[\\+\\s-\\(\\)]", options: .caseInsensitive)
-
-  func format (phoneNumber: String, shouldRemoveLastDigit: Bool) -> String {
-
-    guard !(shouldRemoveLastDigit && phoneNumber.count <= 2) else {
-      return "+"
+  private func formatPhoneNumber(number: String) -> String {
+    let cleanPhoneNumber = number.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+    let mask = "+XXX (XX) XXX-XX-XX"
+    var result = ""
+    var index = cleanPhoneNumber.startIndex
+    for ch in mask where index < cleanPhoneNumber.endIndex {
+      if ch == "X" {
+        result.append(cleanPhoneNumber[index])
+        index = cleanPhoneNumber.index(after: index)
+      } else {
+        result.append(ch)
+      }
     }
-    let range = NSString(string: phoneNumber).range(of: phoneNumber)
-    var number = reg!.stringByReplacingMatches(in: phoneNumber, options: [], range: range, withTemplate: "")
-    if number.count > 11 {
-      let max = number.index(number.startIndex, offsetBy: 11)
-      number = String(number[number.startIndex..<max])
-    }
-
-    if shouldRemoveLastDigit {
-      let max = number.index(number.startIndex, offsetBy: number.count - 1)
-      number = String(number[number.startIndex..<max])
-    }
-
-    let maxIndex = number.index(number.startIndex, offsetBy: number.count)
-    let regRange = number.startIndex..<maxIndex
-
-    if number.count < 7 {
-      let pattern = "(\\d{3})(\\d{2})(\\d{2})"
-      number = number.replacingOccurrences(of: pattern, with: "$1 $2 $3", options: .regularExpression, range: regRange)
-    } else {
-      let pattern = "(\\d{3})(\\d{2})(\\d{3})(\\d{2})(\\d{2})"
-      number = number.replacingOccurrences(of: pattern, with: "$1 ($2) $3 $4 $5",
-                                           options: .regularExpression, range: regRange)
-    }
-    return "+" + number
+    return result
   }
+}
+
+extension InfoAboutContactViewController: UITextFieldDelegate {
 
   func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange,
                  replacementString string: String) -> Bool {
-    let full = (textField.text ?? "") + string
-    textField.text = format(phoneNumber: full, shouldRemoveLastDigit: range.length == 1)
+    if textField == fullName {
+      return true
+    }
+    guard let text = textField.text else { return false }
+
+    let newString = (text as NSString).replacingCharacters(in: range, with: string)
+    textField.text = formatPhoneNumber(number: newString)
     return false
   }
 
+  func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    if textField == fullName {
+      self.title = fullName.text
+      textField.resignFirstResponder()
+      phoneNumber.becomeFirstResponder()
+      contactsSourceArray.contacts[numberInArray].name = fullName.text!
+      saveToArray()
+    } else {
+      textField.resignFirstResponder()
+      contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
+      saveToArray()
+    }
+    return true
+  }
 }

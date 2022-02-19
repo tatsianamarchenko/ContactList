@@ -20,23 +20,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
            window?.makeKeyAndVisible()
            window?.windowScene = windowScene
   }
-  //    do {
-  //      let predicate = CNContact.predicateForContacts(matchingName: "Даша")
-  //      var contacts = try CNContactStore().unifiedContacts(matching: predicate, keysToFetch: [
-  //        CNContactFamilyNameKey as CNKeyDescriptor,
-  //        CNContactGivenNameKey as CNKeyDescriptor,
-  //        CNContactPhoneNumbersKey as CNKeyDescriptor
-  //      ])
-  //      contacts = contacts.filter{$0.familyName == ""}
-  //      guard let contact = contacts.first else {
-  //        print("no such contact")
-  //        return
-  //      }
-  //      if contact.phoneNumbers.count > 0 {
-  //        let number = contact.phoneNumbers[0]
-  //        print(number)
-  //      }
-  //    } catch  {
-  //      print("error")
-  //    }
+  
 }

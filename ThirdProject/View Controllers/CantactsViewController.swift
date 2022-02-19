@@ -56,7 +56,7 @@ class CantactsViewController: UIViewController {
     view.backgroundColor = .systemBackground
     view.addSubview(accessButton)
     view.addSubview(table)
-    if contactsSourceArray.contacts.isEmpty {print("isEmpty")}
+
     table.dataSource = self
     table.delegate = self
 
@@ -71,13 +71,11 @@ class CantactsViewController: UIViewController {
         accessButton.removeFromSuperview()
         print(Helper.path)
         let cached: Contacts = try Helper.storage.fetch(for: "contactItem")
-        print(cached.contacts.count)
         if cached.contacts.isEmpty {
           addAccessButton()
         }
         for index in 0..<cached.contacts.count {
           contactsSourceArray.contacts.append(cached.contacts[index])
-          print(cached.contacts[index])
         }
         NSLayoutConstraint.activate([
           table.widthAnchor.constraint(equalTo: view.widthAnchor),
@@ -94,6 +92,11 @@ class CantactsViewController: UIViewController {
     let longPressRecognizer = UILongPressGestureRecognizer(target: self,
                                                            action: #selector(longPress(longPressGestureRecognizer:)))
     table.addGestureRecognizer(longPressRecognizer)
+  }
+
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    table.reloadData()
   }
 
   func addAccessButton () {
@@ -253,9 +256,4 @@ extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
 
 }
 
-//Каждый контакт - отдельная ячейка таблицы, у которой есть:
 //Номер телефона (отображается отформатированным: +375 29 123 45 67)
-//По нажатию на ячейку открывается (push) экран детальной информации о контакте
-//Под фото расположите поля ввода, в которых отображаются фио и номер телефона. У каждого поля ввода есть title (заголовок, например: Phone Number)
-//В nav bar есть кнопка Edit, которая по нажатию меняет своё состояние на Save и включает режим редактирования контакта.
-// Пользователь может отредактировать ФИО и номер телефона. Сохраняется контакт по нажатию на кнопку Save.

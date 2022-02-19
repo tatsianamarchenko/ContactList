@@ -35,7 +35,6 @@ var arrayOfFavorite = [Contact]()
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     arrayOfFavorite = [Contact]()
-    print("viewWillAppear")
     for index in 0..<contactsSourceArray.contacts.count {
       if contactsSourceArray.contacts[index].isFavorite {
         arrayOfFavorite.append(contactsSourceArray.contacts[index])

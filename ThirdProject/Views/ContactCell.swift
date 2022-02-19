@@ -113,7 +113,6 @@ class ContactCell: UITableViewCell {
   }
 }
 
-
 class IndexedButton: UIButton {
 
     var buttonIndexPath: IndexPath
