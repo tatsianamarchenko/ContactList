@@ -51,7 +51,6 @@ class ContactsModel {
   func loadContacts() {
     do {
       contacts = [CNContact]()
-      print(ContactsModel.path)
       let keysTofetch = [
         CNContactImageDataKey as CNKeyDescriptor,
         CNContactGivenNameKey as CNKeyDescriptor,

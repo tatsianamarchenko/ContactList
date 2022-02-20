@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		BF6A244627BB03A8002A4FC8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A244527BB03A8002A4FC8 /* AppDelegate.swift */; };
 		BF6A244827BB03A8002A4FC8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A244727BB03A8002A4FC8 /* SceneDelegate.swift */; };
-		BF6A244A27BB03A8002A4FC8 /* CantactsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A244927BB03A8002A4FC8 /* CantactsViewController.swift */; };
+		BF6A244A27BB03A8002A4FC8 /* ContactsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A244927BB03A8002A4FC8 /* ContactsViewController.swift */; };
 		BF6A244F27BB03AA002A4FC8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF6A244E27BB03AA002A4FC8 /* Assets.xcassets */; };
 		BF6A245227BB03AA002A4FC8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BF6A245027BB03AA002A4FC8 /* LaunchScreen.storyboard */; };
 		BF6A245E27BB08B4002A4FC8 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A245D27BB08B4002A4FC8 /* TabBar.swift */; };
@@ -27,7 +27,7 @@
 		BF6A244227BB03A8002A4FC8 /* ThirdProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThirdProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF6A244527BB03A8002A4FC8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BF6A244727BB03A8002A4FC8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		BF6A244927BB03A8002A4FC8 /* CantactsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantactsViewController.swift; sourceTree = "<group>"; };
+		BF6A244927BB03A8002A4FC8 /* ContactsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsViewController.swift; sourceTree = "<group>"; };
 		BF6A244E27BB03AA002A4FC8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BF6A245127BB03AA002A4FC8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BF6A245327BB03AA002A4FC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -109,7 +109,7 @@
 			children = (
 				BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */,
 				BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */,
-				BF6A244927BB03A8002A4FC8 /* CantactsViewController.swift */,
+				BF6A244927BB03A8002A4FC8 /* ContactsViewController.swift */,
 				BF6A245D27BB08B4002A4FC8 /* TabBar.swift */,
 			);
 			path = "View Controllers";
@@ -228,7 +228,7 @@
 				BFE39ECE27BBF57B0062BC37 /* InfoAboutContactViewController.swift in Sources */,
 				BFE39ECC27BBC1B00062BC37 /* ContactCell.swift in Sources */,
 				BFE39EF227BC33750062BC37 /* ContactModel.swift in Sources */,
-				BF6A244A27BB03A8002A4FC8 /* CantactsViewController.swift in Sources */,
+				BF6A244A27BB03A8002A4FC8 /* ContactsViewController.swift in Sources */,
 				BF6A244627BB03A8002A4FC8 /* AppDelegate.swift in Sources */,
 				BFF96CCF27C178C100DBDEC0 /* Constants.swift in Sources */,
 				BF6A244827BB03A8002A4FC8 /* SceneDelegate.swift in Sources */,

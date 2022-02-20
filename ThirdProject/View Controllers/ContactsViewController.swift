@@ -8,19 +8,25 @@
 import UIKit
 import Contacts
 
-class CantactsViewController: UIViewController {
+class ContactsViewController: UIViewController {
 
- private let contactsModel = ContactsModel()
+  private let contactsModel = ContactsModel()
+
+  private lazy var spiner: UIActivityIndicatorView = {
+    var spiner = UIActivityIndicatorView(style: .large)
+    spiner.translatesAutoresizingMaskIntoConstraints = false
+    return spiner
+  }()
 
   private lazy var accessButton: UIButton = {
     let button = UIButton(type: .roundedRect)
     button.translatesAutoresizingMaskIntoConstraints = false
     button.setTitle(NSLocalizedString("load", comment: ""), for: .normal)
     button.titleLabel?.font = .systemFont(ofSize: textSize, weight: .bold)
-    button.setTitle("Tapped", for: .highlighted )
-    button.backgroundColor = .systemGray6
+    button.tintColor = contactsTextColor
+    button.backgroundColor = backgroundColor
     button.layer.masksToBounds = true
-    button.layer.cornerRadius = 10
+    button.layer.cornerRadius = generalCornerRadius
     button.addTarget(self, action: #selector(accessToContacts), for: .touchUpInside)
     return button
   }()
@@ -49,10 +55,11 @@ class CantactsViewController: UIViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-
     view.backgroundColor = .systemBackground
+
     view.addSubview(accessButton)
     view.addSubview(contactsViewTable)
+    view.addSubview(spiner)
 
     contactsViewTable.dataSource = self
     contactsViewTable.delegate = self
@@ -64,18 +71,18 @@ class CantactsViewController: UIViewController {
       present(accessAlertController, animated: true)
       addAccessButton()
     case .authorized:
-        accessButton.removeFromSuperview()
-        let cached = contactsModel.fetchCachedContacts()
-        if cached.contacts.isEmpty {
-          addAccessButton()
-        }
-        NSLayoutConstraint.activate([
-          contactsViewTable.topAnchor.constraint(equalTo: view.topAnchor),
-          contactsViewTable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-          contactsViewTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-          contactsViewTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-        self.contactsViewTable.reloadData()
+      accessButton.removeFromSuperview()
+      let cached = contactsModel.fetchCachedContacts()
+      if cached.contacts.isEmpty {
+        addAccessButton()
+      }
+      NSLayoutConstraint.activate([
+        contactsViewTable.topAnchor.constraint(equalTo: view.topAnchor),
+        contactsViewTable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        contactsViewTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+        contactsViewTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+      ])
+      self.contactsViewTable.reloadData()
     default : break
     }
 
@@ -94,7 +101,7 @@ class CantactsViewController: UIViewController {
     NSLayoutConstraint.activate([
       accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
       accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-      accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: multiplierforBotton)
+      accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: multiplierForBotton)
     ])
   }
 
@@ -110,7 +117,6 @@ class CantactsViewController: UIViewController {
         alert.addAction(UIAlertAction(title: NSLocalizedString("copy", comment: ""), style: .default, handler: { _ in
           UIPasteboard.general.string = ContactsModel.contactsSourceArray.contacts[indexPath.row].phoneNumber
         }))
-
         alert.addAction(UIAlertAction(title: NSLocalizedString("share", comment: ""),
                                       style: .default,
                                       handler: { [self] _ in
@@ -122,7 +128,6 @@ class CantactsViewController: UIViewController {
             present(activityViewController, animated: true)
           }
         }))
-
         alert.addAction(UIAlertAction(title: NSLocalizedString("delete", comment: ""),
                                       style: .default,
                                       handler: { [self] _ in
@@ -135,9 +140,7 @@ class CantactsViewController: UIViewController {
             addAccessButton()
           }
         }))
-
         alert.addAction(UIAlertAction(title: NSLocalizedString("cancel", comment: ""), style: .cancel, handler: nil))
-
         present(alert, animated: true, completion: nil)
       }
     }
@@ -163,26 +166,43 @@ class CantactsViewController: UIViewController {
   }
 
   func loadContacts() {
-    contactsModel.loadContacts()
+    DispatchQueue.global(qos: .userInteractive).async { [self] in
+      DispatchQueue.main.async {
+        NSLayoutConstraint.activate([
+          spiner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+          spiner.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        spiner.startAnimating()
+      }
+      contactsModel.loadContacts()
+      DispatchQueue.main.async {
+        spiner.stopAnimating()
+        spiner.removeFromSuperview()
+        NSLayoutConstraint.deactivate([
+          spiner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+          spiner.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        NSLayoutConstraint.activate([
+          contactsViewTable.topAnchor.constraint(equalTo: view.topAnchor),
+          contactsViewTable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+          contactsViewTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+          contactsViewTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        contactsViewTable.reloadData()
+      }
+    }
     DispatchQueue.main.async { [self] in
       accessButton.removeFromSuperview()
       NSLayoutConstraint.deactivate([
         accessButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         accessButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-        accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: multiplierforBotton)
+        accessButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: multiplierForBotton)
       ])
-      NSLayoutConstraint.activate([
-        contactsViewTable.topAnchor.constraint(equalTo: view.topAnchor),
-        contactsViewTable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        contactsViewTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-        contactsViewTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-      ])
-      contactsViewTable.reloadData()
     }
   }
 }
 
-extension CantactsViewController: UITableViewDelegate, UITableViewDataSource {
+extension ContactsViewController: UITableViewDelegate, UITableViewDataSource {
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return ContactsModel.contactsSourceArray.contacts.count

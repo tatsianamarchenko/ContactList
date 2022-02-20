@@ -8,9 +8,17 @@
 import Foundation
 import UIKit
 
-let imageCornerRadius: CGFloat = 25
+let backgroundColor: UIColor = .systemGray6
+let contactsTextColor: UIColor = .label
+
 let textSize: CGFloat = 18
+let generalCornerRadius: CGFloat = 10
 let heightForRow: CGFloat = 60
-let screenSize: CGRect = UIScreen.main.bounds
-var imageSize = screenSize.height/7-20
-var multiplierforBotton = 0.7
+let multiplierForBotton = 0.7
+let offsetFromSide: CGFloat = 20
+let offsetFromTop: CGFloat = 5
+
+let imageSize = (UIScreen.main.bounds.height/7)-20
+let imageSizeCornerRadius: CGFloat = imageSize/2
+let tableCellImageSize: CGFloat = 50
+let tableCellImageCornerRadius: CGFloat = tableCellImageSize/2

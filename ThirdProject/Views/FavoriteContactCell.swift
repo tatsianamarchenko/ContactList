@@ -10,6 +10,7 @@ import UIKit
 class FavoriteContactCell: UITableViewCell {
 
   static var cellIdentifier = "FavoriteViewCell"
+  
   var contactsModel = ContactsModel()
 
     private lazy var contactImageView: UIImageView = {
@@ -24,7 +25,7 @@ class FavoriteContactCell: UITableViewCell {
       var title = UILabel()
       title.translatesAutoresizingMaskIntoConstraints = false
       title.font = UIFont.systemFont(ofSize: textSize)
-      title.textColor = .label
+      title.textColor = contactsTextColor
       return title
     }()
 
@@ -43,16 +44,16 @@ class FavoriteContactCell: UITableViewCell {
       contentView.addSubview(fullNameLabel)
 
       NSLayoutConstraint.activate([
-        fullNameLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: 20),
-        fullNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+        fullNameLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: offsetFromSide),
+        fullNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: offsetFromTop),
 
-        phoneNumberLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: 20),
-        phoneNumberLabel.topAnchor.constraint(equalTo: contactImageView.centerYAnchor, constant: -5),
+        phoneNumberLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: offsetFromSide),
+        phoneNumberLabel.topAnchor.constraint(equalTo: contactImageView.centerYAnchor, constant: -offsetFromTop),
 
-        contactImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+        contactImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: offsetFromSide),
         contactImageView.topAnchor.constraint(equalTo: fullNameLabel.topAnchor),
-        contactImageView.widthAnchor.constraint(equalToConstant: 50),
-        contactImageView.heightAnchor.constraint(equalToConstant: 50)
+        contactImageView.widthAnchor.constraint(equalToConstant: tableCellImageSize),
+        contactImageView.heightAnchor.constraint(equalToConstant: tableCellImageSize)
       ])
     }
 
@@ -63,7 +64,7 @@ class FavoriteContactCell: UITableViewCell {
     override func layoutSubviews() {
       super.layoutSubviews()
       contactImageView.layer.masksToBounds = true
-      contactImageView.layer.cornerRadius = 25
+      contactImageView.layer.cornerRadius = tableCellImageCornerRadius
     }
 
     func config(model: Contact, indexPath: IndexPath) {

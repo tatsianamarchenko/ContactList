@@ -18,3 +18,5 @@
 "copy" = "Share number";
 "share" = "Copy number";
 "delete" = "Delete";
+"enterName" = "Enter name";
+"enterPhone" = "Enter phone";

@@ -21,7 +21,7 @@ class TabBar: UITabBarController {
     super.viewDidLoad()
     view.backgroundColor = .systemBackground
     UITabBar.appearance().barTintColor = .systemBackground
-    tabBar.tintColor = .label
+    tabBar.tintColor = contactsTextColor
     setupVCs()
   }
 
@@ -44,7 +44,7 @@ class TabBar: UITabBarController {
     }
 
     viewControllers = [
-      createNavController(for: CantactsViewController(),
+      createNavController(for: ContactsViewController(),
                              title: NSLocalizedString("contacts", comment: ""),
                              image: personImage,
                              selectedImage: personFillImage),

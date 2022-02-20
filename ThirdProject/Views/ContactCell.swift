@@ -10,6 +10,7 @@ import UIKit
 class ContactCell: UITableViewCell {
 
   static var cellIdentifier = "ContactCell"
+
   var contactsModel = ContactsModel()
 
   private lazy var contactImageView: UIImageView = {
@@ -24,7 +25,7 @@ class ContactCell: UITableViewCell {
     var title = UILabel()
     title.translatesAutoresizingMaskIntoConstraints = false
     title.font = UIFont.systemFont(ofSize: textSize)
-    title.textColor = .label
+    title.textColor = contactsTextColor
     return title
   }()
 
@@ -52,19 +53,19 @@ class ContactCell: UITableViewCell {
     contentView.addSubview(favoriteButton)
 
     NSLayoutConstraint.activate([
-      fullNameLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: 20),
-      fullNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+      fullNameLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: offsetFromSide),
+      fullNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: offsetFromTop),
 
-      phoneNumberLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: 20),
-      phoneNumberLabel.topAnchor.constraint(equalTo: contactImageView.centerYAnchor, constant: -5),
+      phoneNumberLabel.leadingAnchor.constraint(equalTo: contactImageView.trailingAnchor, constant: offsetFromSide),
+      phoneNumberLabel.topAnchor.constraint(equalTo: contactImageView.centerYAnchor, constant: -offsetFromTop),
 
-      contactImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+      contactImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: offsetFromSide),
       contactImageView.topAnchor.constraint(equalTo: fullNameLabel.topAnchor),
-      contactImageView.widthAnchor.constraint(equalToConstant: 50),
-      contactImageView.heightAnchor.constraint(equalToConstant: 50),
+      contactImageView.widthAnchor.constraint(equalToConstant: tableCellImageSize),
+      contactImageView.heightAnchor.constraint(equalToConstant: tableCellImageSize),
 
-      favoriteButton.topAnchor.constraint(equalTo: contactImageView.topAnchor, constant: 5),
-      favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
+      favoriteButton.topAnchor.constraint(equalTo: contactImageView.topAnchor, constant: offsetFromTop),
+      favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -offsetFromSide)
     ])
   }
 
@@ -75,22 +76,25 @@ class ContactCell: UITableViewCell {
   override func layoutSubviews() {
     super.layoutSubviews()
     contactImageView.layer.masksToBounds = true
-    contactImageView.layer.cornerRadius = 25
+    contactImageView.layer.cornerRadius = tableCellImageCornerRadius
   }
 
   @objc func addToFavorte(_ sender: IndexedButton) {
     let index = sender.buttonIndexPath.row
     ContactsModel.contactsSourceArray.contacts[index].isFavorite.toggle()
-    print( ContactsModel.contactsSourceArray.contacts[index].name)
     if   ContactsModel.contactsSourceArray.contacts[index].isFavorite == true {
-      favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
-        .systemRed,
-        renderingMode: .alwaysOriginal),
-                              for: .normal)
+      DispatchQueue.main.async { [self] in
+        favoriteButton.setImage(UIImage(systemName: "heart.fill")?
+                                  .withTintColor(.systemRed, renderingMode: .alwaysOriginal),
+                                for: .normal)
+      }
       contactsModel.saveToDisk()
     } else {
-      favoriteButton.setImage(UIImage(systemName: "heart")?.withTintColor(.systemRed,
-                                                                          renderingMode: .alwaysOriginal), for: .normal)
+      DispatchQueue.main.async { [self] in
+        favoriteButton.setImage(UIImage(systemName: "heart")?
+                                  .withTintColor(.systemRed, renderingMode: .alwaysOriginal),
+                                for: .normal)
+      }
       contactsModel.saveToDisk()
     }
   }
