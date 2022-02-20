@@ -70,7 +70,9 @@ class TabBar: UITabBarController {
 
 extension TabBar: UITabBarControllerDelegate {
   override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-    guard let imageView = item.value(forKey: "view") as? UIView else { return }
+    guard let imageView = item.value(forKey: "view") as? UIView else {
+      return
+    }
     imageView.layer.add(animation, forKey: nil)
   }
 }

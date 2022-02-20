@@ -18,21 +18,21 @@ class FavoriteViewController: UIViewController {
     return table
   }()
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-      view.backgroundColor = .systemBackground
-      view.addSubview(favoriteViewTable)
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    view.backgroundColor = .systemBackground
+    view.addSubview(favoriteViewTable)
 
-      favoriteViewTable.dataSource = self
-      favoriteViewTable.delegate = self
+    favoriteViewTable.dataSource = self
+    favoriteViewTable.delegate = self
 
-      NSLayoutConstraint.activate([
-        favoriteViewTable.topAnchor.constraint(equalTo: view.topAnchor),
-        favoriteViewTable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        favoriteViewTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-        favoriteViewTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-      ])
-    }
+    NSLayoutConstraint.activate([
+      favoriteViewTable.topAnchor.constraint(equalTo: view.topAnchor),
+      favoriteViewTable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+      favoriteViewTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      favoriteViewTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+    ])
+  }
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)

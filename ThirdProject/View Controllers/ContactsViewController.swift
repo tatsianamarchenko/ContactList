@@ -217,7 +217,7 @@ extension ContactsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     return UITableViewCell()
   }
-
+  
   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     return heightForRow
   }
@@ -225,7 +225,9 @@ extension ContactsViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     tableView.deselectRow(at: indexPath, animated: true)
     let model = ContactsModel.contactsSourceArray.contacts[indexPath.row]
-   guard let image =  model.image.getImage() else { return }
+    guard let image =  model.image.getImage() else {
+      return
+    }
     let viewController = InfoAboutContactViewController(
       imageItem: image,
       titleItem: model.name,

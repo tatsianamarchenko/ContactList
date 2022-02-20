@@ -10,7 +10,7 @@ import UIKit
 import Contacts
 
 class ContactsModel {
- static var contactsSourceArray = Contacts(contacts: [Contact]())
+  static var contactsSourceArray = Contacts(contacts: [Contact]())
   static let path = URL(fileURLWithPath: NSTemporaryDirectory())
   static let disk = DiskStorage(path: URL(fileURLWithPath: NSTemporaryDirectory()))
   static let storage = CodableStorage(storage: disk)
@@ -32,7 +32,7 @@ class ContactsModel {
     return Contacts(contacts: [Contact]())
   }
 
-   func formatPhoneNumber(number: String) -> String {
+  func formatPhoneNumber(number: String) -> String {
     let cleanPhoneNumber = number.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
     let mask = "+XXX XX XXX XX XX"
     var result = ""
@@ -102,15 +102,15 @@ struct Contact: Codable {
 }
 
 struct Image: Codable {
-    let imageData: Data?
-    init(withImage image: UIImage) {
-        self.imageData = image.pngData()
+  let imageData: Data?
+  init(withImage image: UIImage) {
+    self.imageData = image.pngData()
+  }
+  func getImage() -> UIImage? {
+    guard let imageData = self.imageData else {
+      return nil
     }
-    func getImage() -> UIImage? {
-        guard let imageData = self.imageData else {
-            return nil
-        }
-        let image = UIImage(data: imageData)
-        return image
-    }
+    let image = UIImage(data: imageData)
+    return image
+  }
 }
