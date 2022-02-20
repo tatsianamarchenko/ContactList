@@ -25,22 +25,39 @@ class TabBar: UITabBarController {
     setupVCs()
   }
 
-  func setupVCs() {
+  private func setupVCs() {
+    let personImage = UIImage(systemName: "person.crop.circle")
+    guard let personImage = personImage else {
+      return
+    }
+    let personFillImage = UIImage(systemName: "person.crop.circle.fill")
+    guard let personFillImage = personFillImage else {
+      return
+    }
+    let starImage = UIImage(systemName: "star")
+    guard let starImage = starImage else {
+      return
+    }
+    let starFillImage = UIImage(systemName: "star.fill")
+    guard let starFillImage = starFillImage else {
+      return
+    }
+
     viewControllers = [
       createNavController(for: CantactsViewController(),
                              title: NSLocalizedString("contacts", comment: ""),
-                             image: UIImage(systemName: "person.crop.circle")!,
-                             selectedImage: UIImage(systemName: "person.crop.circle.fill")!),
+                             image: personImage,
+                             selectedImage: personFillImage),
       createNavController(for: FavoriteViewController(),
                              title: NSLocalizedString("favorite", comment: ""),
-                             image: UIImage(systemName: "star")!,
-                             selectedImage: UIImage(systemName: "star.fill")!)
+                             image: starImage,
+                             selectedImage: starFillImage)
     ]
   }
 
-  fileprivate func createNavController(for rootViewController: UIViewController,
-                                       title: String,
-                                       image: UIImage, selectedImage: UIImage) -> UIViewController {
+  private func createNavController(for rootViewController: UIViewController,
+                                   title: String,
+                                   image: UIImage, selectedImage: UIImage) -> UIViewController {
     let navController = UINavigationController(rootViewController: rootViewController)
     navController.tabBarItem.title = title
     navController.tabBarItem.selectedImage = selectedImage

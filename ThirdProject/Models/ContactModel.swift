@@ -11,13 +11,17 @@ import Contacts
 
 class ContactsModel {
  static var contactsSourceArray = Contacts(contacts: [Contact]())
+  static let path = URL(fileURLWithPath: NSTemporaryDirectory())
+  static let disk = DiskStorage(path: URL(fileURLWithPath: NSTemporaryDirectory()))
+  static let storage = CodableStorage(storage: disk)
+
   var contactStore = CNContactStore()
   var contacts = [CNContact]()
   var authorizationStatus = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
 
   func fetchCachedContacts() -> Contacts {
     do {
-      let cached: Contacts = try Helper.storage.fetch(for: "contactItem")
+      let cached: Contacts = try ContactsModel.storage.fetch(for: "contactItem")
       for index in 0..<cached.contacts.count {
         ContactsModel.contactsSourceArray.contacts.append(cached.contacts[index])
       }
@@ -28,10 +32,26 @@ class ContactsModel {
     return Contacts(contacts: [Contact]())
   }
 
+   func formatPhoneNumber(number: String) -> String {
+    let cleanPhoneNumber = number.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+    let mask = "+XXX XX XXX XX XX"
+    var result = ""
+    var index = cleanPhoneNumber.startIndex
+    for character in mask where index < cleanPhoneNumber.endIndex {
+      if character == "X" {
+        result.append(cleanPhoneNumber[index])
+        index = cleanPhoneNumber.index(after: index)
+      } else {
+        result.append(character)
+      }
+    }
+    return result
+  }
+
   func loadContacts() {
     do {
       contacts = [CNContact]()
-      print(Helper.path)
+      print(ContactsModel.path)
       let keysTofetch = [
         CNContactImageDataKey as CNKeyDescriptor,
         CNContactGivenNameKey as CNKeyDescriptor,
@@ -49,8 +69,10 @@ class ContactsModel {
           }
         }
 
+        let formatedPhoneNumber = formatPhoneNumber(number: (contacts[contact].phoneNumbers.first?.value.stringValue)!)
+
         let contactItem = Contact(name: contacts[contact].givenName + " " + contacts[contact].familyName,
-                                  phoneNumber: (contacts[contact].phoneNumbers.first?.value.stringValue)!,
+                                  phoneNumber: formatedPhoneNumber,
                                   image: Image(withImage: image!))
         ContactsModel.contactsSourceArray.contacts.append(contactItem)
         saveToDisk()
@@ -62,7 +84,7 @@ class ContactsModel {
 
   func saveToDisk() {
     do {
-      try Helper.storage.save(ContactsModel.contactsSourceArray, for: "contactItem")
+      try ContactsModel.storage.save(ContactsModel.contactsSourceArray, for: "contactItem")
     } catch {
       print(error)
     }
@@ -82,11 +104,9 @@ struct Contact: Codable {
 
 struct Image: Codable {
     let imageData: Data?
-
     init(withImage image: UIImage) {
         self.imageData = image.pngData()
     }
-
     func getImage() -> UIImage? {
         guard let imageData = self.imageData else {
             return nil

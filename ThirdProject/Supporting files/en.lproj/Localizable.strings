@@ -8,3 +8,13 @@
 
 "favorite" = "Favorite";
 "contacts" = "Contacts";
+"name" = "Name";
+"phoneNumber" = "Phone number";
+"load" = "Load contacts";
+"cancel" = "Cancel";
+"access" = "Allow access";
+"accessDenied" = "Access denied";
+"accessMessage" = "The application requires access to the contact";
+"copy" = "Share number";
+"share" = "Copy number";
+"delete" = "Delete";

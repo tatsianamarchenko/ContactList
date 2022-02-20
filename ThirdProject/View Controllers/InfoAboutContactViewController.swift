@@ -9,28 +9,29 @@ import UIKit
 
 class InfoAboutContactViewController: UIViewController {
 
-var contactsModel = ContactsModel()
-  var numberInArray = 0
-  var isEdit = false
+private var contactsModel = ContactsModel()
+ private var numberInArray = 0
+ private var isEdit = false
 
-  private lazy var image: UIImageView = {
-    var image = UIImageView()
+  private lazy var contactImageView: UIImageView = {
+    let image = UIImageView()
     image.translatesAutoresizingMaskIntoConstraints = false
     image.backgroundColor = .systemGray3
+    image.clipsToBounds = true
     image.contentMode = .scaleAspectFill
     return image
   }()
 
-  private lazy var favoriteButton: IndexedButton = {
-    var favoriteButton = IndexedButton(buttonIndexPath: IndexPath(index: 0))
-    favoriteButton.translatesAutoresizingMaskIntoConstraints = false
-    favoriteButton.contentMode = .scaleAspectFill
-    favoriteButton.addTarget(self, action: #selector(addToFavorte), for: .touchUpInside)
-    return favoriteButton
+  private lazy var addToFavoriteButton: IndexedButton = {
+    let button = IndexedButton(buttonIndexPath: IndexPath(index: 0))
+    button.translatesAutoresizingMaskIntoConstraints = false
+    button.contentMode = .scaleAspectFill
+    button.addTarget(self, action: #selector(addToFavorte), for: .touchUpInside)
+    return button
   }()
 
-  private lazy var fullName: UITextField = {
-    var textField = UITextField()
+  private lazy var fullNameTextField: UITextField = {
+    let textField = UITextField()
     configTextField(textField: textField)
     textField.keyboardType = .default
     textField.autocapitalizationType = .words
@@ -39,52 +40,59 @@ var contactsModel = ContactsModel()
     return textField
   }()
 
-  private lazy var phoneNumber: UITextField = {
-    var textField = UITextField()
+  private lazy var phoneNumberTextField: UITextField = {
+    let textField = UITextField()
     configTextField(textField: textField)
     textField.keyboardType = .phonePad
     textField.placeholder = "Введите номер"
     return textField
   }()
 
-  func configTextField (textField: UITextField) {
-    textField.translatesAutoresizingMaskIntoConstraints = false
-    textField.font = UIFont.systemFont(ofSize: 20)
-    textField.textAlignment = .center
-    textField.textColor = .label
-    textField.clearButtonMode = .whileEditing
-    textField.isUserInteractionEnabled = false
-    textField.contentMode = .center
+  private lazy var stackFullName: UIStackView = {
+    let stack = createStack(textField: fullNameTextField,
+                           name: NSLocalizedString("name", comment: ""))
+    return stack
+  }()
+
+  private lazy var stackPhoneNumber: UIStackView = {
+    let stack = createStack(textField: phoneNumberTextField,
+                            name: NSLocalizedString("phoneNumber", comment: ""))
+    return stack
+  }()
+
+  private lazy var mainStack: UIStackView = {
+    let stack = UIStackView()
+    return stack
+  }()
+
+  init(imageItem: UIImage, titleItem: String, item: Contact, indexPath: IndexPath) {
+    super.init(nibName: nil, bundle: nil)
+    contactImageView.image = imageItem
+    fullNameTextField.text = item.name
+    phoneNumberTextField.text = item.phoneNumber
+    self.title = titleItem
+    self.numberInArray = indexPath.row
+    addToFavoriteButton.setImage(UIImage(systemName:
+                                      item.isFavorite ?
+                                    "heart.fill" : "heart")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal),
+                            for: .normal)
+    addToFavoriteButton.buttonIndexPath = indexPath
   }
 
-  func createStack(textField: UITextField, name: String) -> UIStackView {
-    let lable = UILabel()
-    lable.text = name
-    lable.font = UIFont.systemFont(ofSize: 20)
-    textField.textColor = .label
-
-    let stack = UIStackView(arrangedSubviews: [lable, textField])
-    stack.translatesAutoresizingMaskIntoConstraints = false
-    stack.axis = .horizontal
-    stack.alignment = .leading
-    stack.backgroundColor = .systemGray6
-    stack.clipsToBounds = true
-    stack.layer.cornerRadius = 10
-    view.addSubview(stack)
-    return stack
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
     view.backgroundColor = .systemBackground
-    phoneNumber.delegate = self
-    fullName.delegate = self
+    phoneNumberTextField.delegate = self
+    fullNameTextField.delegate = self
     createBarButton()
-    let stackFullName = createStack(textField: fullName, name: "Имя")
-    let stackPhoneNumber = createStack(textField: phoneNumber, name: "Номер")
-
-    let mainStack = UIStackView(arrangedSubviews: [image, stackFullName, stackPhoneNumber, favoriteButton])
+    mainStack = UIStackView(arrangedSubviews: [contactImageView, stackFullName,
+                                                   stackPhoneNumber,
+                                                   addToFavoriteButton])
     mainStack.translatesAutoresizingMaskIntoConstraints = false
     mainStack.axis = .vertical
     mainStack.alignment = .center
@@ -95,8 +103,8 @@ var contactsModel = ContactsModel()
       mainStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
       stackFullName.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -80),
       stackPhoneNumber.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -80),
-      image.widthAnchor.constraint(equalToConstant: 120),
-      image.heightAnchor.constraint(equalToConstant: 120)
+      contactImageView.widthAnchor.constraint(equalToConstant: imageSize),
+      contactImageView.heightAnchor.constraint(equalToConstant: imageSize)
     ])
 
     NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification,
@@ -123,45 +131,44 @@ var contactsModel = ContactsModel()
     }
   }
 
-  override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-    super.viewWillTransition(to: size, with: coordinator)
-//    print("qwertyui")
-//    NSLayoutConstraint.activate([
-//      image.widthAnchor.constraint(equalToConstant: 60),
-//      image.heightAnchor.constraint(equalToConstant: 60)
-//    ])
-  }
-
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-    image.clipsToBounds = true
-    image.layer.cornerRadius = 60
+      contactImageView.layer.cornerRadius = imageSize/2
   }
 
-  init(imageItem: UIImage, titleItem: String, item: Contact, indexPath: IndexPath) {
-    super.init(nibName: nil, bundle: nil)
-    image.image = imageItem
-    fullName.text = item.name
-    phoneNumber.text = item.phoneNumber
-    self.title = titleItem
-    self.numberInArray = indexPath.row
-    favoriteButton.setImage(UIImage(systemName:
-                                      item.isFavorite ?
-                                    "heart.fill" : "heart")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal),
-                            for: .normal)
-    favoriteButton.buttonIndexPath = indexPath
+  private func configTextField (textField: UITextField) {
+    textField.translatesAutoresizingMaskIntoConstraints = false
+    textField.font = UIFont.systemFont(ofSize: textSize)
+    textField.textAlignment = .center
+    textField.textColor = .label
+    textField.clearButtonMode = .whileEditing
+    textField.isUserInteractionEnabled = false
+    textField.contentMode = .center
   }
 
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
+  private func createStack(textField: UITextField, name: String) -> UIStackView {
+    let lable = UILabel()
+    lable.text = name
+    lable.font = UIFont.systemFont(ofSize: textSize)
+    textField.textColor = .label
 
-  deinit {
-    NotificationCenter.default.removeObserver(self)
+    let stack = UIStackView(arrangedSubviews: [lable, textField])
+    stack.translatesAutoresizingMaskIntoConstraints = false
+    stack.axis = .horizontal
+    stack.alignment = .leading
+    stack.backgroundColor = .systemGray6
+    stack.clipsToBounds = true
+    stack.layer.cornerRadius = 10
+    view.addSubview(stack)
+    return stack
   }
 
   func createBarButton() {
-    let button = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.down.fill")!,
+    let saveImage = UIImage(systemName: "e.square.fill")
+    guard let saveImage = saveImage else {
+      return
+    }
+    let button = UIBarButtonItem(image: saveImage,
                                       style: .plain,
                                       target: self,
                                       action: #selector(editInfo))
@@ -173,13 +180,13 @@ var contactsModel = ContactsModel()
     let index = sender.buttonIndexPath.row
     ContactsModel.contactsSourceArray.contacts[index].isFavorite.toggle()
     if   ContactsModel.contactsSourceArray.contacts[index].isFavorite == true {
-      favoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
+      addToFavoriteButton.setImage(UIImage(systemName: "heart.fill")?.withTintColor(
         .systemRed,
         renderingMode: .alwaysOriginal),
                               for: .normal)
       contactsModel.saveToDisk()
     } else {
-      favoriteButton.setImage(UIImage(systemName: "heart")?.withTintColor(
+      addToFavoriteButton.setImage(UIImage(systemName: "heart")?.withTintColor(
         .systemRed,
         renderingMode: .alwaysOriginal),
                               for: .normal)
@@ -189,27 +196,47 @@ var contactsModel = ContactsModel()
 
   @objc func editInfo(_ sender: UIBarButtonItem) {
     isEdit.toggle()
-    print(isEdit)
+    let saveImage = UIImage(systemName: "e.square.fill")
+    guard let saveImage = saveImage else {
+      return
+    }
+    let editImage = UIImage(systemName: "square.and.arrow.down.fill")
+    guard let editImage = editImage else {
+      return
+    }
+
     if isEdit == true {
-      sender.image = UIImage(systemName: "e.square.fill")!
-      fullName.isUserInteractionEnabled = true
-      phoneNumber.isUserInteractionEnabled = true
-      fullName.becomeFirstResponder()
+      sender.image = editImage
+      fullNameTextField.isUserInteractionEnabled = true
+      phoneNumberTextField.isUserInteractionEnabled = true
+      fullNameTextField.becomeFirstResponder()
     } else {
-      sender.image = UIImage(systemName: "square.and.arrow.down.fill")!
-      fullName.isUserInteractionEnabled = false
-      phoneNumber.isUserInteractionEnabled = false
-      fullName.resignFirstResponder()
-      ContactsModel.contactsSourceArray.contacts[numberInArray].name = fullName.text!
-      phoneNumber.resignFirstResponder()
-      ContactsModel.contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
-      contactsModel.saveToDisk()
+      sender.image = saveImage
+
+      self.title = fullNameTextField.text
+
+      fullNameTextField.isUserInteractionEnabled = false
+      phoneNumberTextField.isUserInteractionEnabled = false
+      fullNameTextField.resignFirstResponder()
+      phoneNumberTextField.resignFirstResponder()
+
+      let name = fullNameTextField.text
+      if let name = name {
+        ContactsModel.contactsSourceArray.contacts[numberInArray].name = name
+        contactsModel.saveToDisk()
+      }
+
+      let phoneNumber = phoneNumberTextField.text
+      if let phoneNumber = phoneNumber {
+        ContactsModel.contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber
+        contactsModel.saveToDisk()
+      }
     }
   }
 
   private func formatPhoneNumber(number: String) -> String {
     let cleanPhoneNumber = number.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-    let mask = "+XXX (XX) XXX-XX-XX"
+    let mask = "+XXX XX XXX XX XX"
     var result = ""
     var index = cleanPhoneNumber.startIndex
     for character in mask where index < cleanPhoneNumber.endIndex {
@@ -222,13 +249,18 @@ var contactsModel = ContactsModel()
     }
     return result
   }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self)
+  }
+
 }
 
 extension InfoAboutContactViewController: UITextFieldDelegate {
 
   func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange,
                  replacementString string: String) -> Bool {
-    if textField == fullName {
+    if textField == fullNameTextField {
       return true
     }
     guard let text = textField.text else { return false }
@@ -239,16 +271,22 @@ extension InfoAboutContactViewController: UITextFieldDelegate {
   }
 
   func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-    if textField == fullName {
-      self.title = fullName.text
+    if textField == fullNameTextField {
+      self.title = fullNameTextField.text
       textField.resignFirstResponder()
-      phoneNumber.becomeFirstResponder()
-      ContactsModel.contactsSourceArray.contacts[numberInArray].name = fullName.text!
-      contactsModel.saveToDisk()
+      phoneNumberTextField.becomeFirstResponder()
+      let name = fullNameTextField.text
+      if let name = name {
+        ContactsModel.contactsSourceArray.contacts[numberInArray].name = name
+        contactsModel.saveToDisk()
+      }
     } else {
       textField.resignFirstResponder()
-      ContactsModel.contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber.text!
-      contactsModel.saveToDisk()
+      let phoneNumber = phoneNumberTextField.text
+      if let phoneNumber = phoneNumber {
+        ContactsModel.contactsSourceArray.contacts[numberInArray].phoneNumber = phoneNumber
+        contactsModel.saveToDisk()
+      }
     }
     return true
   }

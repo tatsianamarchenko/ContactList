@@ -9,11 +9,11 @@ import UIKit
 
 class FavoriteViewController: UIViewController {
 
-var arrayOfFavorite = [Contact]()
-var contactsModel = ContactsModel()
-  private lazy var table: UITableView = {
+  var arrayOfFavorite = [Contact]()
+
+  private lazy var favoriteViewTable: UITableView = {
     let table = UITableView()
-    table.register(ContactCell.self, forCellReuseIdentifier: ContactCell.cellIdentifier)
+    table.register(FavoriteContactCell.self, forCellReuseIdentifier: FavoriteContactCell.cellIdentifier)
     table.translatesAutoresizingMaskIntoConstraints = false
     return table
   }()
@@ -21,28 +21,28 @@ var contactsModel = ContactsModel()
     override func viewDidLoad() {
         super.viewDidLoad()
       view.backgroundColor = .systemBackground
-      view.addSubview(table)
+      view.addSubview(favoriteViewTable)
 
-      table.dataSource = self
-      table.delegate = self
+      favoriteViewTable.dataSource = self
+      favoriteViewTable.delegate = self
 
       NSLayoutConstraint.activate([
-        table.widthAnchor.constraint(equalTo: view.widthAnchor),
-        table.heightAnchor.constraint(equalTo: view.heightAnchor)
+        favoriteViewTable.topAnchor.constraint(equalTo: view.topAnchor),
+        favoriteViewTable.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        favoriteViewTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+        favoriteViewTable.trailingAnchor.constraint(equalTo: view.trailingAnchor)
       ])
     }
 
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     arrayOfFavorite = [Contact]()
-    for index in 0..<ContactsModel.contactsSourceArray.contacts.count {
-      if ContactsModel.contactsSourceArray.contacts[index].isFavorite {
-        arrayOfFavorite.append(ContactsModel.contactsSourceArray.contacts[index])
-      }
+    for index in 0..<ContactsModel.contactsSourceArray.contacts.count
+    where ContactsModel.contactsSourceArray.contacts[index].isFavorite {
+      arrayOfFavorite.append(ContactsModel.contactsSourceArray.contacts[index])
     }
-    table.reloadData()
+    favoriteViewTable.reloadData()
   }
-
 }
 
 extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {
@@ -51,8 +51,9 @@ extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    if let cell = table.dequeueReusableCell(withIdentifier: ContactCell.cellIdentifier, for: indexPath)
-        as? ContactCell {
+    if let cell = favoriteViewTable.dequeueReusableCell(withIdentifier: FavoriteContactCell.cellIdentifier,
+                                                        for: indexPath)
+        as? FavoriteContactCell {
       let contact = arrayOfFavorite[indexPath.row]
       cell.config(model: contact, indexPath: indexPath)
       return cell
@@ -61,7 +62,7 @@ extension FavoriteViewController: UITableViewDelegate, UITableViewDataSource {
   }
 
   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-    return 60
+    return heightForRow
   }
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
