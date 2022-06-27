@@ -15,6 +15,9 @@
 		BF6A245E27BB08B4002A4FC8 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A245D27BB08B4002A4FC8 /* TabBar.swift */; };
 		BF6A246527BB0D66002A4FC8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = BF6A246727BB0D66002A4FC8 /* Localizable.strings */; };
 		BF6A246A27BB0F53002A4FC8 /* FavoriteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */; };
+		BFA759402869B42500C487FE /* Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA7593F2869B42500C487FE /* Image.swift */; };
+		BFA759422869B49400C487FE /* IndexedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFA759412869B49400C487FE /* IndexedButton.swift */; };
+		BFE0A4F92869AFA300A4498E /* ContactStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE0A4F82869AFA300A4498E /* ContactStorageManager.swift */; };
 		BFE39ECC27BBC1B00062BC37 /* ContactCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */; };
 		BFE39ECE27BBF57B0062BC37 /* InfoAboutContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */; };
 		BFE39EF227BC33750062BC37 /* ContactModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE39EF127BC33750062BC37 /* ContactModel.swift */; };
@@ -35,6 +38,9 @@
 		BF6A246627BB0D66002A4FC8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BF6A246827BB0D67002A4FC8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BF6A246927BB0F53002A4FC8 /* FavoriteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteViewController.swift; sourceTree = "<group>"; };
+		BFA7593F2869B42500C487FE /* Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Image.swift; sourceTree = "<group>"; };
+		BFA759412869B49400C487FE /* IndexedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexedButton.swift; sourceTree = "<group>"; };
+		BFE0A4F82869AFA300A4498E /* ContactStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactStorageManager.swift; sourceTree = "<group>"; };
 		BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactCell.swift; sourceTree = "<group>"; };
 		BFE39ECD27BBF57B0062BC37 /* InfoAboutContactViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoAboutContactViewController.swift; sourceTree = "<group>"; };
 		BFE39EF127BC33750062BC37 /* ContactModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactModel.swift; sourceTree = "<group>"; };
@@ -58,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				BFE39EF627BC66AF0062BC37 /* Disk Storage.swift */,
+				BFE0A4F82869AFA300A4498E /* ContactStorageManager.swift */,
 				BFF96CCE27C178C100DBDEC0 /* Constants.swift */,
 			);
 			path = Manager;
@@ -119,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				BFE39EF127BC33750062BC37 /* ContactModel.swift */,
+				BFA7593F2869B42500C487FE /* Image.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -128,6 +136,7 @@
 			children = (
 				BFE39ECB27BBC1B00062BC37 /* ContactCell.swift */,
 				BFF96CD027C1802D00DBDEC0 /* FavoriteContactCell.swift */,
+				BFA759412869B49400C487FE /* IndexedButton.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -225,12 +234,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BFA759422869B49400C487FE /* IndexedButton.swift in Sources */,
 				BFE39ECE27BBF57B0062BC37 /* InfoAboutContactViewController.swift in Sources */,
 				BFE39ECC27BBC1B00062BC37 /* ContactCell.swift in Sources */,
 				BFE39EF227BC33750062BC37 /* ContactModel.swift in Sources */,
 				BF6A244A27BB03A8002A4FC8 /* ContactsViewController.swift in Sources */,
 				BF6A244627BB03A8002A4FC8 /* AppDelegate.swift in Sources */,
 				BFF96CCF27C178C100DBDEC0 /* Constants.swift in Sources */,
+				BFA759402869B42500C487FE /* Image.swift in Sources */,
+				BFE0A4F92869AFA300A4498E /* ContactStorageManager.swift in Sources */,
 				BF6A244827BB03A8002A4FC8 /* SceneDelegate.swift in Sources */,
 				BF6A245E27BB08B4002A4FC8 /* TabBar.swift in Sources */,
 				BFF96CD127C1802D00DBDEC0 /* FavoriteContactCell.swift in Sources */,
